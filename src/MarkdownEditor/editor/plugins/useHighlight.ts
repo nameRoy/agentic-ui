@@ -169,7 +169,9 @@ const processJinjaMatchesOnFullText = (
     let match: RegExpMatchArray | null;
     while ((match = reg.exec(fullText)) !== null) {
       const start = match.index;
-      const end = start + match[0].length;
+      const matched = match[0];
+      if (typeof start !== 'number' || !matched) continue;
+      const end = start + matched.length;
       const range = createRangeSpanningChildren(
         path,
         children,
