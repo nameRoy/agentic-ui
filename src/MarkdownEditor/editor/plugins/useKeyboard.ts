@@ -257,11 +257,11 @@ export const useKeyboard = (
           if (codeMatch) {
           } else {
             const strAfterKey = str + (e.key.length === 1 ? e.key : '');
-            // 仅在实际输入一个字符且刚好补全 trigger 时打开面板，避免 Backspace 等导致误打开
+            // 在实际输入一个字符且补全 trigger 时打开面板，支持在文本后输入（如 "hello {}"）
             if (
               jinjaTemplatePanelEnabled &&
               e.key.length === 1 &&
-              strAfterKey === jinjaTrigger &&
+              strAfterKey.endsWith(jinjaTrigger) &&
               setOpenJinjaTemplate &&
               setJinjaAnchorPath
             ) {
