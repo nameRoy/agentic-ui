@@ -56,6 +56,44 @@ const createRange = (
   };
 };
 
+/** 创建可跨子节点的 range（用于 Jinja 等可能被 inline code 分割的匹配） */
+const createRangeSpanningChildren = (
+  path: Path,
+  children: { text?: string }[],
+  globalStart: number,
+  globalEnd: number,
+  props: Record<string, any> = {},
+) => {
+  let offset = 0;
+  let anchorPath: Path | null = null;
+  let anchorOffset = 0;
+  let focusPath: Path | null = null;
+  let focusOffset = 0;
+
+  for (let i = 0; i < children.length; i++) {
+    const text = children[i]?.text ?? '';
+    const len = text.length;
+    const childStart = offset;
+    const childEnd = offset + len;
+
+    if (globalStart < childEnd && anchorPath === null) {
+      anchorPath = path.concat(i);
+      anchorOffset = Math.max(0, globalStart - childStart);
+    }
+    if (globalEnd <= childEnd && focusPath === null) {
+      focusPath = path.concat(i);
+      focusOffset = Math.min(len, globalEnd - childStart);
+      break;
+    }
+    offset = childEnd;
+  }
+
+  if (anchorPath && focusPath) {
+    return { anchor: { path: anchorPath, offset: anchorOffset }, focus: { path: focusPath, offset: focusOffset }, ...props };
+  }
+  return null;
+};
+
 // 处理文本节点的匹配逻辑
 const processTextMatches = (
   text: string,
@@ -119,24 +157,27 @@ const processLinkMatches = (
   return ranges;
 };
 
-const processJinjaMatches = (
-  text: string,
+/** 在整段文本上匹配 Jinja，支持被 inline code 分割的语法（如 {% if `x` %}） */
+const processJinjaMatchesOnFullText = (
+  fullText: string,
   path: Path,
-  childIndex: number,
+  children: { text?: string }[],
 ): any[] => {
   const ranges: any[] = [];
   const collect = (reg: RegExp, prop: string) => {
     reg.lastIndex = 0;
     let match: RegExpMatchArray | null;
-    while ((match = reg.exec(text)) !== null) {
-      const index = match.index;
-      if (typeof index === 'number') {
-        ranges.push(
-          createRange(path, childIndex, index, match[0].length, {
-            [prop]: true,
-          }),
-        );
-      }
+    while ((match = reg.exec(fullText)) !== null) {
+      const start = match.index;
+      const end = start + match[0].length;
+      const range = createRangeSpanningChildren(
+        path,
+        children,
+        start,
+        end,
+        { [prop]: true },
+      );
+      if (range) ranges.push(range);
     }
   };
   collect(JINJA_VARIABLE_REG, 'jinjaVariable');
@@ -165,6 +206,8 @@ export function useHighlight(store?: EditorStore, jinjaEnabled?: boolean) {
         const children = node.children;
         const childrenLength = children.length;
 
+        const fullText = Node.string(node);
+
         for (let i = 0; i < childrenLength; i++) {
           const child = children[i];
 
@@ -177,10 +220,13 @@ export function useHighlight(store?: EditorStore, jinjaEnabled?: boolean) {
           if (child.text && !child.url && !child.docId && !child.hash) {
             allTextRanges.push(...processLinkMatches(child.text, path, i));
           }
+        }
 
-          if (jinjaEnabled && child.text && !EditorUtils.isDirtLeaf(child)) {
-            allTextRanges.push(...processJinjaMatches(child.text, path, i));
-          }
+        // Jinja 在整段文本上匹配，支持 {% if `x` %} 等被 inline code 分割的语法
+        if (jinjaEnabled && fullText) {
+          allTextRanges.push(
+            ...processJinjaMatchesOnFullText(fullText, path, children),
+          );
         }
 
         // 统一缓存

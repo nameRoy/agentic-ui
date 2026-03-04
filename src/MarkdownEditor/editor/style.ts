@@ -482,7 +482,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         marginTop: '0.5em',
         marginBottom: '0.5em',
       },
-      '& &-inline-code': {
+      '& code&-inline-code': {
         display: 'inline',
         fontFamily: `'Roboto,Mono SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace`,
         margin: '1px 3px',

@@ -22,3 +22,9 @@ group:
 除 `jinja` prop 外，也可使用 `createJinjaPlugin` 或 `jinjaPlugin` 启用：
 
 <code src="../demos/jinja-plugin-demo.tsx" background="var(--main-bg-color)" iframe=540></code>
+
+## 编程设置 Schema {#jinja-set-schema}
+
+通过 `editorRef` 获取编辑器实例，调用 `store.setContent(schema)` 可编程写入含 Jinja 变量标签的 Slate Schema（如 `if/else` 条件模板）：
+
+<code src="../demos/jinja-set-schema-demo.tsx" background="var(--main-bg-color)" iframe=620></code>

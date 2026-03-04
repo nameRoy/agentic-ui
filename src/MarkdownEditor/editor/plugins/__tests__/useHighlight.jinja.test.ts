@@ -87,4 +87,20 @@ describe('useHighlight - Jinja', () => {
     const ranges = decorate([node, [0]]);
     expect(ranges).toEqual([]);
   });
+
+  it('returns jinjaTag ranges when paragraph contains inline code (e.g. {% if `x` %})', () => {
+    const node: Element = {
+      type: 'paragraph',
+      children: [
+        { text: '{% if ' },
+        { text: 'x', code: true },
+        { text: ' %}' },
+      ],
+    } as any;
+    const ranges = decorate([node, [0]]);
+    const tagRanges = ranges.filter((r: any) => r.jinjaTag === true);
+    expect(tagRanges.length).toBeGreaterThanOrEqual(1);
+    expect(tagRanges[0].anchor.path).toEqual([0, 0]);
+    expect(tagRanges[0].focus.path).toEqual([0, 2]);
+  });
 });
