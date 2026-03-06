@@ -11,6 +11,7 @@ import React, {
   useState,
 } from 'react';
 import { ActionIconBox } from '../../../../Components/ActionIconBox';
+import { TABLE_COL_WIDTH_MIN_COLUMNS } from '../../../../Constants/mobile';
 import { I18nContext } from '../../../../I18n';
 import { useEditorStore } from '../../store';
 import { TableNode } from '../../types/Table';
@@ -43,15 +44,19 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
     const [previewOpen, setPreviewOpen] = useState(false);
     const i18n = useContext(I18nContext);
 
-    // 简化的列宽计算 - 只为 readonly 模式设计
+    // 简化的列宽计算 - 只为 readonly 模式设计，少于 3 列不设置 col
     const colWidths = useMemo(() => {
+      const columnCount = element?.children?.[0]?.children?.length || 0;
+      if (
+        columnCount === 0 ||
+        columnCount < TABLE_COL_WIDTH_MIN_COLUMNS
+      )
+        return [];
+
       const otherProps = element?.otherProps as any;
       if (otherProps?.colWidths) {
         return otherProps.colWidths;
       }
-
-      const columnCount = element?.children?.[0]?.children?.length || 0;
-      if (columnCount === 0) return [];
 
       // 使用固定宽度避免复杂计算
       const defaultWidth = 80;
@@ -115,25 +120,27 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
             },
           )}
         >
-          <colgroup>
-            {colWidths.map((colWidth: number, index: number) => {
-              const isLastCol = index === colWidths.length - 1;
-              return (
-                <col
-                  key={index}
-                  style={
-                    isLastCol
-                      ? { minWidth: 60 }
-                      : {
-                          width: colWidth,
-                          minWidth: colWidth,
-                          maxWidth: colWidth,
-                        }
-                  }
-                />
-              );
-            })}
-          </colgroup>
+          {colWidths.length > 0 && (
+            <colgroup>
+              {colWidths.map((colWidth: number, index: number) => {
+                const isLastCol = index === colWidths.length - 1;
+                return (
+                  <col
+                    key={index}
+                    style={
+                      isLastCol
+                        ? { minWidth: 60 }
+                        : {
+                            width: colWidth,
+                            minWidth: colWidth,
+                            maxWidth: colWidth,
+                          }
+                    }
+                  />
+                );
+              })}
+            </colgroup>
+          )}
           <tbody>{children}</tbody>
         </table>
       ),
@@ -190,40 +197,42 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
             onCancel={handleModalClose}
           >
             <div
-              className={classNames(
-                baseCls,
-                getPrefixCls('agentic-md-editor-content'),
-              )}
-              style={{
-                flex: 1,
-                minWidth: 0,
-                overflow: 'auto',
-                width: 'calc(80vw - 64px)',
-              }}
-              ref={modelTargetRef}
-              onMouseDown={(e) => {
-                // 阻止默认的文字选择行为
-                e.preventDefault();
-              }}
-              onDragStart={(e) => {
-                // 阻止拖拽开始时的文字选择
-                e.preventDefault();
-              }}
-              onDoubleClick={(e) => {
-                // 阻止双击选择文字
-                e.preventDefault();
-              }}
+              className={getPrefixCls('agentic-md-editor')}
+              style={{ flex: 1, minWidth: 0 }}
             >
-              <ConfigProvider
-                getPopupContainer={() =>
-                  modelTargetRef.current || document.body
-                }
-                getTargetContainer={() =>
-                  modelTargetRef.current || document.body
-                }
+              <div
+                className={classNames(
+                  baseCls,
+                  getPrefixCls('agentic-md-editor-content'),
+                )}
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  overflow: 'auto',
+                  width: 'calc(80vw - 64px)',
+                }}
+                ref={modelTargetRef}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                }}
+                onDragStart={(e) => {
+                  e.preventDefault();
+                }}
+                onDoubleClick={(e) => {
+                  e.preventDefault();
+                }}
               >
-                {tableDom}
-              </ConfigProvider>
+                <ConfigProvider
+                  getPopupContainer={() =>
+                    modelTargetRef.current || document.body
+                  }
+                  getTargetContainer={() =>
+                    modelTargetRef.current || document.body
+                  }
+                >
+                  {tableDom}
+                </ConfigProvider>
+              </div>
             </div>
           </Modal>
         )}

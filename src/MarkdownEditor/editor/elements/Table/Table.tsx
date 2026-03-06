@@ -7,6 +7,7 @@ import stringWidth from 'string-width';
 import {
   MOBILE_BREAKPOINT,
   MOBILE_TABLE_MIN_COLUMN_WIDTH,
+  TABLE_COL_WIDTH_MIN_COLUMNS,
 } from '../../../../Constants/mobile';
 import { useEditorStore } from '../../store';
 import { ReadonlyTableComponent } from './ReadonlyTableComponent';
@@ -60,18 +61,21 @@ export const SlateTable = ({
 
   // 只在编辑模式下进行复杂的列宽计算
   const colWidths = useMemo(() => {
-    // readonly 模式下使用简化计算
+    // readonly 模式下使用简化计算，少于 3 列不设置 col
     if (readonly) {
+      const colCount = props.element?.children?.[0]?.children?.length || 0;
+      if (colCount === 0 || colCount < TABLE_COL_WIDTH_MIN_COLUMNS) return [];
       const otherProps = props.element?.otherProps as any;
       if (otherProps?.colWidths) {
         return otherProps.colWidths;
       }
-      const columnCount = props.element?.children?.[0]?.children?.length || 0;
-      if (columnCount === 0) return [];
-      return Array(columnCount).fill(80); // 固定宽度
+      return Array(colCount).fill(80); // 固定宽度
     }
 
-    // 如果在props中存在，直接使用以避免计算
+    // 少于 3 列不设置 col，使用浏览器默认布局
+    if (columnCount < TABLE_COL_WIDTH_MIN_COLUMNS) return [];
+
+    // 如果在 props 中存在，直接使用以避免计算
     if (props.element?.otherProps?.colWidths) {
       return props.element?.otherProps?.colWidths as number[];
     }
@@ -238,13 +242,17 @@ export const SlateTable = ({
         </colgroup>
         <tbody>
           {readonly ? null : (
-            <TableRowIndex colWidths={colWidths} tablePath={tablePath} />
+            <TableRowIndex
+              colWidths={colWidths}
+              columnCount={columnCount}
+              tablePath={tablePath}
+            />
           )}
           {children}
         </tbody>
       </table>
     ),
-    [colWidths, children, baseCls],
+    [colWidths, columnCount, children, baseCls],
   );
 
   // 缓存boxShadow样式，只在scrollState变化时重新计算

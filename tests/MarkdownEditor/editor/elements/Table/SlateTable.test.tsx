@@ -160,12 +160,12 @@ describe('SlateTable', () => {
   });
 
   describe('编辑模式列宽计算', () => {
-    it('otherProps.colWidths 存在时直接使用', () => {
+    it('少于 3 列时不设置 data col，仅保留行号列', () => {
       const element = makeTableElement([['a', 'b']], { colWidths: [120, 180] });
       const { container } = renderSlateTable(element);
       const cols = container.querySelectorAll('col');
-      // 第一个 col 是 12px 的行号列，之后是 colWidths 对应的列
-      expect(cols.length).toBe(3);
+      // columnCount < 3 不设置 data col，仅行号列
+      expect(cols.length).toBe(1);
     });
 
     it('element.children 为空时返回空数组', () => {
@@ -186,8 +186,7 @@ describe('SlateTable', () => {
       expect(cols.length).toBe(1);
     });
 
-    it('正常计算列宽并创建 col 元素', () => {
-      // 设置容器宽度
+    it('少于 3 列时不创建 data col 元素', () => {
       const containerDiv = document.createElement('div');
       const contentDiv = document.createElement('div');
       contentDiv.className = 'ant-agentic-md-editor-content';
@@ -203,13 +202,32 @@ describe('SlateTable', () => {
         ['a', 'longer text here'],
       ]);
       const { container } = renderSlateTable(element);
-      // 行号列 + 2 数据列
+      // columnCount=2 < 3，仅行号列
       const cols = container.querySelectorAll('col');
-      expect(cols.length).toBe(3);
+      expect(cols.length).toBe(1);
     });
 
-    it('总宽度超过容器宽度时均匀分配', () => {
-      // 设置很窄的容器来触发均匀分配
+    it('>= 3 列时正常计算列宽并创建 col 元素', () => {
+      const containerDiv = document.createElement('div');
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'ant-agentic-md-editor-content';
+      Object.defineProperty(contentDiv, 'clientWidth', {
+        value: 800,
+        configurable: true,
+      });
+      containerDiv.appendChild(contentDiv);
+      mocks.storeState.markdownContainerRef = { current: containerDiv };
+
+      const element = makeTableElement([
+        ['short', 'medium', 'longer'],
+        ['a', 'b', 'c'],
+      ]);
+      const { container } = renderSlateTable(element);
+      const cols = container.querySelectorAll('col');
+      expect(cols.length).toBe(4); // 行号列 + 3 数据列
+    });
+
+    it('>= 3 列且总宽度超过容器时均匀分配', () => {
       const containerDiv = document.createElement('div');
       const contentDiv = document.createElement('div');
       contentDiv.className = 'ant-agentic-md-editor-content';
@@ -220,16 +238,16 @@ describe('SlateTable', () => {
       containerDiv.appendChild(contentDiv);
       mocks.storeState.markdownContainerRef = { current: containerDiv };
 
-      // 用很长的文本确保 totalWidth > containerWidth
       const element = makeTableElement([
         [
           'very long text content here for width',
           'another very long text content here',
+          'third column content',
         ],
       ]);
       const { container } = renderSlateTable(element);
       const cols = container.querySelectorAll('col');
-      expect(cols.length).toBe(3);
+      expect(cols.length).toBe(4); // 行号列 + 3 数据列
     });
   });
 

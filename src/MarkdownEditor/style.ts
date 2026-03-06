@@ -424,6 +424,10 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
           tableLayout: 'fixed',
           margin: '16px 0',
           maxWidth: '100%',
+
+          [`&${token.componentCls}-content-table-readonly-table`]: {
+            width: '100%',
+          },
           position: 'relative',
           fontVariant: 'tabular-nums',
           borderRadius: 'var(--table-border-radius)',

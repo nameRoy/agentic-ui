@@ -134,23 +134,45 @@ describe('ReadonlyTableComponent', () => {
   });
 
   describe('列宽计算测试', () => {
-    it('应该使用 otherProps 中的 colWidths', () => {
+    const elementWith3Columns = {
+      type: 'table',
+      children: [
+        {
+          type: 'table-row',
+          children: [
+            { type: 'table-cell', children: [{ type: 'paragraph', children: [{ text: 'A' }] }] },
+            { type: 'table-cell', children: [{ type: 'paragraph', children: [{ text: 'B' }] }] },
+            { type: 'table-cell', children: [{ type: 'paragraph', children: [{ text: 'C' }] }] },
+          ],
+        },
+      ],
+    };
+
+    const threeColumnChildren = (
+      <tr>
+        <td>A</td>
+        <td>B</td>
+        <td>C</td>
+      </tr>
+    );
+
+    it('>= 3 列时使用 otherProps 中的 colWidths', () => {
       const elementWithColWidths = {
-        ...mockTableElement,
+        ...elementWith3Columns,
         otherProps: {
           colWidths: [150, 200, 250],
         },
       };
 
-      renderComponent(elementWithColWidths);
+      renderComponent(elementWithColWidths, { children: threeColumnChildren });
       const cols = document.querySelectorAll('col');
       expect(cols.length).toBe(3);
     });
 
-    it('应该为没有 colWidths 的表格使用默认宽度', () => {
+    it('少于 3 列时不设置 col', () => {
       renderComponent();
       const cols = document.querySelectorAll('col');
-      expect(cols.length).toBe(2);
+      expect(cols.length).toBe(0);
     });
 
     it('应该处理空的 children', () => {
@@ -164,15 +186,15 @@ describe('ReadonlyTableComponent', () => {
       expect(cols.length).toBe(0);
     });
 
-    it('应该为每一列应用正确的宽度样式', () => {
+    it('>= 3 列时为每一列应用正确的宽度样式', () => {
       const elementWithColWidths = {
-        ...mockTableElement,
+        ...elementWith3Columns,
         otherProps: {
-          colWidths: [100, 150],
+          colWidths: [100, 150, 200],
         },
       };
 
-      renderComponent(elementWithColWidths);
+      renderComponent(elementWithColWidths, { children: threeColumnChildren });
       const cols = document.querySelectorAll('col');
       const firstCol = cols[0] as HTMLElement;
       expect(firstCol.style.width).toBe('100px');

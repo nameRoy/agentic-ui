@@ -3,6 +3,9 @@ const MOBILE_PADDING_MAX = '12px';
 const MOBILE_PADDING_SCALE = '2vw';
 const MOBILE_TABLE_MIN_CELL_WIDTH = 96;
 
+/** 表格列宽计算的列数阈值，少于该列数不设置 col 元素，使用浏览器默认布局 */
+export const TABLE_COL_WIDTH_MIN_COLUMNS = 3;
+
 export const MOBILE_PADDING = `clamp(${MOBILE_PADDING_MIN}, ${MOBILE_PADDING_SCALE}, ${MOBILE_PADDING_MAX})`;
 export const MOBILE_BREAKPOINT = '768px';
 export const MOBILE_TABLE_MIN_COLUMN_WIDTH = MOBILE_TABLE_MIN_CELL_WIDTH;
