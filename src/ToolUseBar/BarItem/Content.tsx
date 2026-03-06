@@ -9,12 +9,14 @@ interface ToolImageProps {
   tool: ToolCall;
   prefixCls: string;
   hashId: string;
+  disableAnimation?: boolean;
 }
 
 const ToolImageComponent: React.FC<ToolImageProps> = ({
   tool,
   prefixCls,
   hashId,
+  disableAnimation = false,
 }) => {
   const toolImageWrapperClassName = useMemo(() => {
     return classNames(`${prefixCls}-tool-image-wrapper`, hashId, {
@@ -57,15 +59,24 @@ const ToolImageComponent: React.FC<ToolImageProps> = ({
   );
 
   const animationProps = useMemo(() => {
+    if (disableAnimation) return {};
     return tool.status === 'loading'
       ? loadingAnimationConfig
       : idleAnimationConfig;
-  }, [tool.status, loadingAnimationConfig, idleAnimationConfig]);
+  }, [tool.status, loadingAnimationConfig, idleAnimationConfig, disableAnimation]);
 
   // 缓存图标渲染
   const iconElement = useMemo(() => {
     return tool.icon ? tool.icon : <Api />;
   }, [tool.icon]);
+
+  if (disableAnimation) {
+    return (
+      <div className={toolImageWrapperClassName}>
+        <div className={toolImageClassName}>{iconElement}</div>
+      </div>
+    );
+  }
 
   return (
     <motion.div className={toolImageWrapperClassName} {...animationProps}>
@@ -81,6 +92,7 @@ interface ToolHeaderRightProps {
   prefixCls: string;
   hashId: string;
   light: boolean;
+  disableAnimation?: boolean;
 }
 
 const ToolHeaderRightComponent: React.FC<ToolHeaderRightProps> = ({
@@ -88,6 +100,7 @@ const ToolHeaderRightComponent: React.FC<ToolHeaderRightProps> = ({
   prefixCls,
   hashId,
   light,
+  disableAnimation = false,
 }) => {
   const toolHeaderRightClassName = useMemo(() => {
     return classNames(
@@ -137,8 +150,9 @@ const ToolHeaderRightComponent: React.FC<ToolHeaderRightProps> = ({
   );
 
   const animationProps = useMemo(() => {
+    if (disableAnimation) return {};
     return tool.status === 'loading' ? loadingAnimationConfig : {};
-  }, [tool.status, loadingAnimationConfig]);
+  }, [tool.status, loadingAnimationConfig, disableAnimation]);
 
   // 缓存工具名称和目标渲染
   const toolNameElement = useMemo(() => {
@@ -157,6 +171,15 @@ const ToolHeaderRightComponent: React.FC<ToolHeaderRightProps> = ({
       </div>
     ) : null;
   }, [tool.toolTarget, toolTargetClassName]);
+
+  if (disableAnimation) {
+    return (
+      <div className={toolHeaderRightClassName}>
+        {toolNameElement}
+        {toolTargetElement}
+      </div>
+    );
+  }
 
   return (
     <motion.div className={toolHeaderRightClassName} {...animationProps}>
@@ -201,6 +224,7 @@ interface ToolExpandProps {
   prefixCls: string;
   hashId: string;
   onExpandClick: (e: React.MouseEvent<HTMLDivElement>) => void;
+  disableAnimation?: boolean;
 }
 
 const ToolExpandComponent: React.FC<ToolExpandProps> = ({
@@ -209,6 +233,7 @@ const ToolExpandComponent: React.FC<ToolExpandProps> = ({
   prefixCls,
   hashId,
   onExpandClick,
+  disableAnimation = false,
 }) => {
   const toolExpandClassName = useMemo(() => {
     return classNames(`${prefixCls}-tool-expand`, hashId);
@@ -217,10 +242,10 @@ const ToolExpandComponent: React.FC<ToolExpandProps> = ({
   // 缓存样式对象，避免重复创建
   const chevronStyle = useMemo(() => {
     return {
-      transition: 'transform 0.3s ease-in-out',
+      ...(disableAnimation ? {} : { transition: 'transform 0.3s ease-in-out' }),
       transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
     };
-  }, [expanded]);
+  }, [expanded, disableAnimation]);
 
   // 使用 useRefFunction 优化点击处理函数
   const handleClick = useRefFunction((e: React.MouseEvent<HTMLDivElement>) => {
@@ -250,6 +275,7 @@ interface ToolContentProps {
   light: boolean;
   showContent: boolean;
   expanded: boolean;
+  disableAnimation?: boolean;
 }
 
 const ToolContentComponent: React.FC<ToolContentProps> = ({
@@ -259,6 +285,7 @@ const ToolContentComponent: React.FC<ToolContentProps> = ({
   light,
   showContent,
   expanded,
+  disableAnimation = false,
 }) => {
   const toolContainerClassName = useMemo(() => {
     return classNames(`${prefixCls}-tool-container`, hashId, {
@@ -306,7 +333,6 @@ const ToolContentComponent: React.FC<ToolContentProps> = ({
     ) : null;
   }, [tool.content, contentClassName]);
 
-  // 缓存容器元素
   const contentVariants = useMemo(
     () => ({
       expanded: {
@@ -335,7 +361,6 @@ const ToolContentComponent: React.FC<ToolContentProps> = ({
     [],
   );
 
-  // 缓存样式对象
   const containerStyle = useMemo(
     () => ({
       overflow: 'hidden',
@@ -343,6 +368,20 @@ const ToolContentComponent: React.FC<ToolContentProps> = ({
     }),
     [],
   );
+
+  // 禁用动画时使用简单的显示/隐藏
+  if (disableAnimation) {
+    return showContent && expanded ? (
+      <div
+        className={toolContainerClassName}
+        data-testid="tool-user-item-tool-container"
+        style={{ overflow: 'hidden' }}
+      >
+        {contentDom}
+        {errorDom}
+      </div>
+    ) : null;
+  }
 
   return (
     <AnimatePresence initial={false} mode="sync">

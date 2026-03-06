@@ -78,4 +78,32 @@ describe('ToolUseBarItem', () => {
     fireEvent.click(headerBtn);
     expect(headerBtn).toBeInTheDocument();
   });
+
+  it('disableAnimation 为 true 时展开收起功能正常', () => {
+    const tool = {
+      id: 't4',
+      toolName: 'Tool',
+      toolTarget: 'Target',
+      status: 'success' as const,
+      content: <div data-testid="tool-content">Content</div>,
+    };
+
+    render(
+      <TestWrapper>
+        <ToolUseBarItem
+          tool={tool}
+          prefixCls={prefixCls}
+          hashId={hashId}
+          disableAnimation
+        />
+      </TestWrapper>,
+    );
+
+    const toolBar = screen.getByTestId('tool-user-item-tool-bar');
+    fireEvent.click(toolBar);
+    expect(screen.getByTestId('tool-content')).toBeInTheDocument();
+
+    fireEvent.click(toolBar);
+    expect(screen.queryByTestId('tool-content')).not.toBeInTheDocument();
+  });
 });

@@ -79,6 +79,7 @@ export default () => {
 | defaultExpandedKeys  | string[]                                                | []     | 默认展开的工具 ID 数组                                       |
 | onExpandedKeysChange | (expandedKeys: string[], removedKeys: string[]) => void | -      | 展开状态变化回调，`removedKeys` 为本次操作中被收起的工具项ID |
 | light                | boolean                                                 | false  | 启用亮色/轻量模式                                            |
+| disableAnimation     | boolean                                                 | false  | 关闭动画，在性能较弱设备上可减少卡顿                         |
 | testId               | string                                                  | -      | 测试 ID                                                      |
 | style                | React.CSSProperties                                     | -      | 自定义样式                                                   |
 

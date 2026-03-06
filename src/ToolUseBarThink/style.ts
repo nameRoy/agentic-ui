@@ -239,6 +239,12 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         maxHeight: 158,
         overflow: 'hidden',
         position: 'relative',
+        '&-content': {
+          overflow: 'hidden',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        },
         '&:hover': {
           [`&-floating-expand`]: {
             opacity: 1,

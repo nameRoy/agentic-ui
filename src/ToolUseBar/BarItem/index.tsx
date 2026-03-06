@@ -34,6 +34,7 @@ export interface ToolUseBarItemProps {
   onExpandedChange?: (id: string, expanded: boolean) => void;
   defaultExpanded?: boolean;
   light?: boolean;
+  disableAnimation?: boolean;
 }
 
 const ToolUseBarItemComponent: React.FC<ToolUseBarItemProps> = ({
@@ -47,6 +48,7 @@ const ToolUseBarItemComponent: React.FC<ToolUseBarItemProps> = ({
   onExpandedChange,
   defaultExpanded,
   light = false,
+  disableAnimation = false,
 }) => {
   // 使用 useMergedState 来管理展开状态
   const [expanded, setExpanded] = useMergedState(defaultExpanded ?? false, {
@@ -118,6 +120,7 @@ const ToolUseBarItemComponent: React.FC<ToolUseBarItemProps> = ({
         light={light}
         showContent={true}
         expanded={true}
+        disableAnimation={disableAnimation}
       />
     );
   }
@@ -141,13 +144,19 @@ const ToolUseBarItemComponent: React.FC<ToolUseBarItemProps> = ({
           className={toolHeaderClassName}
           data-testid="tool-user-item-tool-header"
         >
-          <ToolImage tool={tool} prefixCls={prefixCls} hashId={hashId} />
+          <ToolImage
+          tool={tool}
+          prefixCls={prefixCls}
+          hashId={hashId}
+          disableAnimation={disableAnimation}
+        />
         </div>
         <ToolHeaderRight
           tool={tool}
           prefixCls={prefixCls}
           hashId={hashId}
           light={light}
+          disableAnimation={disableAnimation}
         />
         {tool.time || showContent ? (
           <div className={classNames(`${prefixCls}-tool-time-expand`, hashId)}>
@@ -158,6 +167,7 @@ const ToolUseBarItemComponent: React.FC<ToolUseBarItemProps> = ({
               prefixCls={prefixCls}
               hashId={hashId}
               onExpandClick={handleExpandClick}
+              disableAnimation={disableAnimation}
             />
           </div>
         ) : null}
@@ -169,6 +179,7 @@ const ToolUseBarItemComponent: React.FC<ToolUseBarItemProps> = ({
         light={light}
         showContent={showContent}
         expanded={expanded}
+        disableAnimation={disableAnimation}
       />
     </div>
   );

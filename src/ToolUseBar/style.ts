@@ -7,6 +7,11 @@ import {
 const genStyle: GenerateStyle<ChatTokenType> = (token) => {
   return {
     [token.componentCls]: {
+      '&-no-animation': {
+        '& *': {
+          transition: 'none !important',
+        },
+      },
       display: 'flex',
       flexDirection: 'column',
       gap: 4,
@@ -282,6 +287,10 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         lineHeight: '160%',
         letterSpacing: 'normal',
         color: '#767E8B',
+        overflow: 'hidden',
+        display: '-webkit-box',
+        WebkitLineClamp: 5,
+        WebkitBoxOrient: 'vertical',
       },
       '&-tool-content-error': {
         display: 'flex',
