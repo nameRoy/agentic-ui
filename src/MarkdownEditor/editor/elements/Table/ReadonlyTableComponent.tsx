@@ -6,16 +6,14 @@ import copy from 'copy-to-clipboard';
 import React, {
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 import { ActionIconBox } from '../../../../Components/ActionIconBox';
-import {
-  TABLE_COL_WIDTH_MIN_COLUMNS,
-  TABLE_DEFAULT_COL_WIDTH,
-  TABLE_LAST_COL_MIN_WIDTH,
-} from '../../../../Constants/mobile';
+import { TableColgroup } from './TableColgroup';
+import { getReadonlyTableColWidths } from './utils/getTableColWidths';
 import { I18nContext } from '../../../../I18n';
 import { useEditorStore } from '../../store';
 import { TableNode } from '../../types/Table';
@@ -44,26 +42,57 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
     } = editorProps?.tableConfig || {};
 
     const tableTargetRef = useRef<HTMLTableElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const modelTargetRef = useRef<HTMLDivElement>(null);
     const [previewOpen, setPreviewOpen] = useState(false);
+    const [needsColWidths, setNeedsColWidths] = useState(false);
     const i18n = useContext(I18nContext);
 
-    // 简化的列宽计算 - 只为 readonly 模式设计，少于 3 列不设置 col
+    const columnCount = element?.children?.[0]?.children?.length || 0;
+    const otherProps = element?.otherProps as any;
+
+    const computedColWidths = useMemo(
+      () =>
+        getReadonlyTableColWidths({
+          columnCount,
+          otherProps,
+        }),
+      [columnCount, otherProps],
+    );
+
+    /**
+     * 列宽按需计算：
+     * - 显式传入 colWidths：始终使用
+     * - needsColWidths=true（溢出或未测量）：使用 computedColWidths，1–4 列 % 平分，5+ 列 120px
+     * - needsColWidths=false（宽度充足）：[]，不渲染 colgroup，由浏览器自然分布
+     */
     const colWidths = useMemo(() => {
-      const columnCount = element?.children?.[0]?.children?.length || 0;
-      if (
-        columnCount === 0 ||
-        columnCount < TABLE_COL_WIDTH_MIN_COLUMNS
-      )
-        return [];
+      if (otherProps?.colWidths?.length) return otherProps.colWidths;
+      return needsColWidths ? computedColWidths : [];
+    }, [otherProps?.colWidths, needsColWidths, computedColWidths]);
 
-      const otherProps = element?.otherProps as any;
-      if (otherProps?.colWidths) {
-        return otherProps.colWidths;
-      }
+    /**
+     * 监听容器宽度，仅在表格溢出时设置 needsColWidths，减少不必要的列宽计算。
+     * unmeasured (clientWidth===0)：SSR/测试等未测量场景，保守启用列宽。
+     */
+    useEffect(() => {
+      const container = containerRef.current;
+      const table = tableTargetRef.current;
+      if (!container || !table || columnCount === 0) return;
 
-      return Array(columnCount).fill(TABLE_DEFAULT_COL_WIDTH);
-    }, [element?.otherProps, element?.children?.[0]?.children?.length]);
+      const checkOverflow = () => {
+        const cw = container.clientWidth;
+        const sw = table.scrollWidth;
+        const unmeasured = cw === 0;
+        const overflow = sw > cw;
+        setNeedsColWidths(unmeasured || overflow);
+      };
+
+      const ro = new ResizeObserver(checkOverflow);
+      ro.observe(container);
+      checkOverflow();
+      return () => ro.disconnect();
+    }, [columnCount]);
 
     // 缓存复制处理函数
     const handleCopy = useCallback(() => {
@@ -122,27 +151,7 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
             },
           )}
         >
-          {colWidths.length > 0 && (
-            <colgroup>
-              {colWidths.map((colWidth: number, index: number) => {
-                    const isLastCol = index === colWidths.length - 1;
-                return (
-                  <col
-                    key={index}
-                    style={
-                      isLastCol
-                        ? { minWidth: TABLE_LAST_COL_MIN_WIDTH }
-                        : {
-                            width: colWidth,
-                            minWidth: colWidth,
-                            maxWidth: colWidth,
-                          }
-                    }
-                  />
-                );
-              })}
-            </colgroup>
-          )}
+          <TableColgroup colWidths={colWidths} />
           <tbody>{children}</tbody>
         </table>
       ),
@@ -182,7 +191,9 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
 
     return (
       <>
-        <div className={classNames(baseCls)}>{tableDom}</div>
+        <div ref={containerRef} className={classNames(baseCls)}>
+          {tableDom}
+        </div>
         {popoverContent}
         {previewOpen && (
           <Modal
