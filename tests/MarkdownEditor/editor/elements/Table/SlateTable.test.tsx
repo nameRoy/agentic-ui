@@ -421,9 +421,9 @@ describe('SlateTable', () => {
       const cols = container.querySelectorAll('col');
       // cols: [行号列, a, b, c(最后)]
       expect(cols.length).toBe(4);
-      // 最后一列应只有 min-width
+      // 最后一列应只有 min-width（使用 TABLE_LAST_COL_MIN_WIDTH）
       const lastCol = cols[3];
-      expect(lastCol.style.minWidth).toBe('60px');
+      expect(lastCol.style.minWidth).toBe('80px');
     });
 
     it('非最后一列设置固定 width', () => {

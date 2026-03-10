@@ -7,7 +7,7 @@ import stringWidth from 'string-width';
 import {
   MOBILE_BREAKPOINT,
   MOBILE_TABLE_MIN_COLUMN_WIDTH,
-  TABLE_COL_WIDTH_MIN_COLUMNS,
+  TABLE_EDIT_COL_WIDTH_MIN_COLUMNS,
 } from '../../../../Constants/mobile';
 import { TableColgroup, TABLE_ROW_INDEX_COL_WIDTH } from './TableColgroup';
 import { useEditorStore } from '../../store';
@@ -64,12 +64,12 @@ export const SlateTable = ({
   const colWidths = useMemo(() => {
     if (readonly) return [];
 
-    // 少于 5 列不设置 col，列平分宽度
-    if (columnCount < TABLE_COL_WIDTH_MIN_COLUMNS) return [];
+    // 少于 TABLE_EDIT_COL_WIDTH_MIN_COLUMNS 列不设置 data col，仅行号列（显式 colWidths 也忽略）
+    if (columnCount < TABLE_EDIT_COL_WIDTH_MIN_COLUMNS) return [];
 
-    // 如果在 props 中存在，直接使用以避免计算
-    if (props.element?.otherProps?.colWidths) {
-      return props.element?.otherProps?.colWidths as number[];
+    // 显式传入 colWidths 时优先使用
+    if (props.element?.otherProps?.colWidths?.length) {
+      return props.element.otherProps.colWidths as number[];
     }
 
     if (typeof window === 'undefined' || !props.element?.children?.length)
