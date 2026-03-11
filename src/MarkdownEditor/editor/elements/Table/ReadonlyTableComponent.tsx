@@ -16,6 +16,7 @@ import { useEditorStore } from '../../store';
 import { TableNode } from '../../types/Table';
 import { parserSlateNodeToMarkdown } from '../../utils';
 import { TableColgroup } from './TableColgroup';
+import type { ColWidthValue } from './utils/getTableColWidths';
 import { useReadonlyTableColWidths } from './utils/useReadonlyTableColWidths';
 
 interface ReadonlyTableComponentProps {
@@ -48,7 +49,7 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
 
     const columnCount = element?.children?.[0]?.children?.length || 0;
     const otherProps = element?.otherProps as
-      | { colWidths?: number[] }
+      | { colWidths?: ColWidthValue[] }
       | undefined;
 
     const colWidths = useReadonlyTableColWidths({
@@ -56,6 +57,7 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
       otherProps,
       containerRef,
       tableRef: tableTargetRef,
+      element,
     });
 
     // 缓存复制处理函数
