@@ -7,6 +7,7 @@ import {
 const genStyle: GenerateStyle<ChatTokenType> = (token) => {
   return {
     [token.componentCls]: {
+      maxWidth: '100%',
       '&-no-animation': {
         '& *': {
           transition: 'none !important',
@@ -229,6 +230,8 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         fontWeight: 'normal',
         lineHeight: '20px',
         flex: 1,
+        minWidth: 0,
+        maxWidth: 320,
         display: '-webkit-box',
         WebkitLineClamp: 1,
         WebkitBoxOrient: 'vertical',
