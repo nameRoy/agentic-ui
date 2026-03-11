@@ -26,6 +26,7 @@
     "prepare": "husky install && dumi setup",
     "prettier": "prettier --write \"{src,docs,test}/**/*.{js,jsx,ts,tsx,css,less,json,md}\"",
     "preview": "pnpm dumi preview",
+    "postpublish": "npm run build && npm run test",
     "report:demo": "node scripts/generateDemoReport.js",
     "start": "pnpm run dev",
     "test": "vitest --run --exclude \"**/e2e/**\"",
