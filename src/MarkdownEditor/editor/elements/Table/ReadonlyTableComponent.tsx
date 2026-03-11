@@ -3,14 +3,20 @@ import { Copy } from '@sofa-design/icons';
 import { ConfigProvider, Modal } from 'antd';
 import classNames from 'clsx';
 import copy from 'copy-to-clipboard';
-import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ActionIconBox } from '../../../../Components/ActionIconBox';
-import { TableColgroup } from './TableColgroup';
-import { useReadonlyTableColWidths } from './utils/useReadonlyTableColWidths';
 import { I18nContext } from '../../../../I18n';
 import { useEditorStore } from '../../store';
 import { TableNode } from '../../types/Table';
 import { parserSlateNodeToMarkdown } from '../../utils';
+import { TableColgroup } from './TableColgroup';
+import { useReadonlyTableColWidths } from './utils/useReadonlyTableColWidths';
 
 interface ReadonlyTableComponentProps {
   children: React.ReactNode;
@@ -41,7 +47,9 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
     const i18n = useContext(I18nContext);
 
     const columnCount = element?.children?.[0]?.children?.length || 0;
-    const otherProps = element?.otherProps as { colWidths?: number[] } | undefined;
+    const otherProps = element?.otherProps as
+      | { colWidths?: number[] }
+      | undefined;
 
     const colWidths = useReadonlyTableColWidths({
       columnCount,

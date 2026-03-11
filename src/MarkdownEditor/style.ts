@@ -427,6 +427,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
 
           [`&${token.componentCls}-content-table-readonly-table`]: {
             width: '100%',
+            minWidth: 'max-content',
           },
           position: 'relative',
           fontVariant: 'tabular-nums',

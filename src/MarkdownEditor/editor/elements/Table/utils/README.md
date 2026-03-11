@@ -5,30 +5,28 @@
 | 场景 | 行为 |
 |------|------|
 | 显式传入 `otherProps.colWidths` | 始终使用，不参与自动计算 |
-| 容器宽度充足（`scrollWidth ≤ clientWidth`） | 不设置 colgroup，交给浏览器 |
-| 表格溢出（`scrollWidth > clientWidth`） | 根据列数计算列宽并设置 colgroup |
-| 未测量（`clientWidth === 0`，如 SSR/测试） | 保守地按需计算，显示 colgroup |
+| 列数 ≥ 5 | 始终计算列宽并渲染 colgroup（避免首帧未测量导致无列宽） |
+| 列数 < 5 且容器宽度充足 | 不设置 colgroup，交给浏览器 |
+| 列数 < 5 且表格溢出或未测量 | 根据列数计算列宽并设置 colgroup |
 
-**实现**：`ResizeObserver` 监听容器 → `checkOverflow` 比较 `table.scrollWidth` 与 `container.clientWidth` → `needsColWidths` 为 true 时才调用 `getReadonlyTableColWidths` 并渲染 colgroup。宽容器下多数表格不再计算列宽，布局由浏览器处理。
+**实现**：列数 ≥ 5 时直接返回 `getReadonlyTableColWidths` 结果；列数 < 5 时由 `ResizeObserver` 监听容器，`checkOverflow` 为 true 时才计算列宽并渲染 colgroup。
 
 ## 二、整体策略（按列数分布）
 
 | 条件 | 行为 |
 |------|------|
 | 显式传入 `otherProps.colWidths` | 始终使用，不参与自动计算 |
-| 容器宽度充足（无溢出） | 不设置 colgroup，由浏览器自然分布 |
-| 容器宽度不足（表格溢出） | 计算并设置 colgroup |
-| 1–4 列 | 使用百分比平分（如 3 列为 33.33%） |
-| 5 列及以上 | 每列 120px 固定宽度 |
+| 5 列及以上 | 始终渲染 colgroup，每列 120px（最后一列弹性） |
+| 1–4 列且容器宽度充足 | 不设置 colgroup，由浏览器自然分布 |
+| 1–4 列且溢出或未测量 | 计算并设置 colgroup，使用百分比平分 |
 
 ## 三、调用流程
 
 ```
 ReadonlyTableComponent
   └─ useReadonlyTableColWidths(containerRef, tableRef, columnCount, otherProps)
-       └─ ResizeObserver 监听容器
-       └─ scrollWidth > clientWidth 或 clientWidth === 0 → needsColWidths = true
-       └─ needsColWidths ? getReadonlyTableColWidths() : []
+       └─ 列数 ≥ 5 → 直接返回 getReadonlyTableColWidths()
+       └─ 列数 < 5 → ResizeObserver 监听容器，溢出或未测量时返回 getReadonlyTableColWidths()
   └─ TableColgroup 渲染 colgroup
 ```
 

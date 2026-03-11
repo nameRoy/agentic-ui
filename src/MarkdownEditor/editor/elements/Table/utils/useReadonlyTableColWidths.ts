@@ -1,25 +1,24 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { TABLE_COL_WIDTH_MIN_COLUMNS } from '../../../../../Constants/mobile';
 import type { ColWidthValue } from './getTableColWidths';
 import { getReadonlyTableColWidths } from './getTableColWidths';
 
 /**
- * 只读表格列宽：仅在宽度不足时计算
+ * 只读表格列宽：多列时始终设 colgroup，少列时按需计算
  *
  * ## 场景与行为
  *
  * | 场景                         | 行为                                   |
  * | ---------------------------- | -------------------------------------- |
  * | 显式传入 otherProps.colWidths | 始终使用，不参与自动计算               |
- * | 容器宽度充足 (scrollWidth ≤ clientWidth) | 不设置 colgroup，交给浏览器自然分布 |
- * | 表格溢出 (scrollWidth > clientWidth)    | 根据列数计算列宽并设置 colgroup      |
- * | 未测量 (clientWidth === 0，如 SSR/测试) | 保守地按需计算，显示 colgroup       |
+ * | 列数 >= 5                     | 始终计算列宽并渲染 colgroup，避免首帧未测量 |
+ * | 列数 < 5 且容器宽度充足       | 不设置 colgroup，交给浏览器自然分布    |
+ * | 列数 < 5 且表格溢出或未测量   | 根据列数计算列宽并设置 colgroup        |
  *
  * ## 实现方式
  *
- * - ResizeObserver 监听容器尺寸变化
- * - checkOverflow 比较 table.scrollWidth 与 container.clientWidth
- * - needsColWidths 为 true 时才调用 getReadonlyTableColWidths 并渲染 colgroup
- * - 宽容器下多数表格不再计算列宽，布局由浏览器处理
+ * - 列数 >= TABLE_COL_WIDTH_MIN_COLUMNS 时始终返回列宽，保证多列表格（如 12 列季度数据）有 colgroup
+ * - 列数 < 5 时沿用 ResizeObserver 溢出检测，宽容器下不渲染 colgroup
  *
  * @see ./README.md
  */
@@ -68,6 +67,8 @@ export function useReadonlyTableColWidths({
 
   return useMemo(() => {
     if (otherProps?.colWidths?.length) return otherProps.colWidths;
+    // 多列表格（如 12 列季度数据）始终渲染 colgroup，避免首帧未测量导致无列宽
+    if (columnCount >= TABLE_COL_WIDTH_MIN_COLUMNS) return computedColWidths;
     return needsColWidths ? computedColWidths : [];
-  }, [otherProps?.colWidths, needsColWidths, computedColWidths]);
+  }, [otherProps?.colWidths, needsColWidths, computedColWidths, columnCount]);
 }
