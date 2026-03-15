@@ -1078,6 +1078,61 @@ describe('FileComponent', () => {
         expect(screen.getByText('updated.txt')).toBeInTheDocument();
       });
     });
+
+    it('点击非图片文件打开预览时 setPreviewFile 且 setCustomPreviewContent(null) (991-992)', async () => {
+      const actionRef = React.createRef<any>();
+      const nodes: FileNode[] = [
+        {
+          id: 'f1',
+          name: 'doc.pdf',
+          url: 'https://example.com/doc.pdf',
+        },
+      ];
+
+      render(
+        <TestWrapper>
+          <FileComponent nodes={nodes} actionRef={actionRef} />
+        </TestWrapper>,
+      );
+
+      actionRef.current?.openPreview(nodes[0]);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('返回文件列表')).toBeInTheDocument();
+      });
+      expect(screen.getAllByText('doc.pdf').length).toBeGreaterThan(0);
+    });
+
+    it('预览内点击分享且未传 onShare 时调用 handleDefaultShare (1064)', async () => {
+      const actionRef = React.createRef<any>();
+      const nodes: FileNode[] = [
+        {
+          id: 'f1',
+          name: 'share.txt',
+          content: 'Content',
+          canShare: true,
+        },
+      ];
+
+      render(
+        <TestWrapper>
+          <FileComponent nodes={nodes} actionRef={actionRef} />
+        </TestWrapper>,
+      );
+
+      actionRef.current?.openPreview(nodes[0]);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('返回文件列表')).toBeInTheDocument();
+      });
+
+      const shareBtn = screen.getByLabelText('分享');
+      fireEvent.click(shareBtn);
+
+      await waitFor(() => {
+        expect(mockClipboard.writeText).toHaveBeenCalled();
+      });
+    });
   });
 
   describe('搜索功能', () => {

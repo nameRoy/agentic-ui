@@ -133,6 +133,13 @@ describe('FileTypeProcessor', () => {
       expect(result.category).toBe(FileCategory.Text);
     });
 
+    it('文件名为空字符串时 getTypeFromFileName 无扩展名分支 (141)', () => {
+      const file = { id: 'f1', name: '' };
+      const result = processor.inferFileType(file);
+      expect(result.fileType).toBeDefined();
+      expect(result.category).toBeDefined();
+    });
+
     it('URL 无有效扩展名时 getTypeFromUrl 返回 null', () => {
       const file = { id: 'f1', name: 'x', url: '' };
       const result = processor.inferFileType(file);

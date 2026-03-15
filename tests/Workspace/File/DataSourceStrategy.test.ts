@@ -459,6 +459,33 @@ describe('DataSourceStrategy', () => {
       expect(mockRevokeObjectURL).not.toHaveBeenCalled();
     });
 
+    it('needsCleanup 为 true 但 previewUrl 非 blob 时不调用 revokeObjectURL (272)', () => {
+      const result = {
+        sourceType: DataSourceType.URL,
+        previewCapability: PreviewCapability.FULL,
+        previewUrl: 'https://example.com/file.txt',
+        needsCleanup: true,
+      };
+
+      manager.cleanupResult(result);
+      expect(mockRevokeObjectURL).not.toHaveBeenCalled();
+    });
+
+    it('URL.revokeObjectURL 缺失时 cleanupResult 不抛错 (275)', () => {
+      (globalThis as any).URL = {
+        createObjectURL: mockCreateObjectURL,
+        revokeObjectURL: undefined,
+      };
+      const result = {
+        sourceType: DataSourceType.FILE,
+        previewCapability: PreviewCapability.FULL,
+        previewUrl: 'blob:mock-url',
+        needsCleanup: true,
+      };
+
+      expect(() => manager.cleanupResult(result)).not.toThrow();
+    });
+
     it('应该支持注册自定义策略', () => {
       const customStrategy = {
         canHandle: (file: any) => file.custom === true,

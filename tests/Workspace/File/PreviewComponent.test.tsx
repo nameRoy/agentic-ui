@@ -804,6 +804,54 @@ describe('PreviewComponent', () => {
 
       expect(screen.queryByLabelText('下载')).not.toBeInTheDocument();
     });
+
+    it('HTML 文件且无 customContent 时显示预览/代码 Segmented (702-706)', async () => {
+      const file: FileNode = {
+        id: 'f1',
+        name: 'page.html',
+        content: '<p>Hello</p>',
+      };
+
+      const { container } = render(
+        <TestWrapper>
+          <PreviewComponent file={file} onBack={vi.fn()} />
+        </TestWrapper>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('预览')).toBeInTheDocument();
+        expect(screen.getByText('代码')).toBeInTheDocument();
+      });
+    });
+
+    it('同时存在 onLocate/canLocate、onShare/canShare、onDownload 时显示对应按钮 (723,733,743)', () => {
+      const handleLocate = vi.fn();
+      const handleShare = vi.fn();
+      const handleDownload = vi.fn();
+      const file: FileNode = {
+        id: 'f1',
+        name: 'test.txt',
+        content: 'Content',
+        canLocate: true,
+        canShare: true,
+      };
+
+      render(
+        <TestWrapper>
+          <PreviewComponent
+            file={file}
+            onBack={vi.fn()}
+            onLocate={handleLocate}
+            onShare={handleShare}
+            onDownload={handleDownload}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByLabelText('定位')).toBeInTheDocument();
+      expect(screen.getByLabelText('分享')).toBeInTheDocument();
+      expect(screen.getByLabelText('下载')).toBeInTheDocument();
+    });
   });
 
   describe('覆盖率补充', () => {
