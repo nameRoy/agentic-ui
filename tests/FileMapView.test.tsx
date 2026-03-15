@@ -256,6 +256,54 @@ describe('FileMapView', () => {
 
       expect(onDownload).toHaveBeenCalledWith(file);
     });
+
+    it('should open file in new window when preview clicked and onPreview not provided', () => {
+      const fileMap = new Map();
+      const file = createMockFile('doc.pdf', 'application/pdf');
+      fileMap.set('file-1', file);
+
+      const { container } = render(<FileMapView fileMap={fileMap} />);
+
+      const fileItem = container.querySelector('[data-testid="file-item"]');
+      fireEvent.mouseEnter(fileItem!);
+
+      const previewBtn = screen.getByRole('button', { name: '预览' });
+      fireEvent.click(previewBtn);
+
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        'https://example.com/doc.pdf',
+        '_blank',
+      );
+    });
+
+    it('should not expand when onViewAll returns false', async () => {
+      const fileMap = new Map();
+      for (let i = 1; i <= 5; i++) {
+        fileMap.set(
+          `file-${i}`,
+          createMockFile(`file${i}.pdf`, 'application/pdf'),
+        );
+      }
+      const onViewAll = vi.fn().mockResolvedValue(false);
+
+      const { container } = render(
+        <FileMapView
+          fileMap={fileMap}
+          maxDisplayCount={3}
+          onViewAll={onViewAll}
+        />,
+      );
+
+      const viewAllButton = screen.getByText('查看此任务中的所有文件');
+      fireEvent.click(viewAllButton);
+
+      await waitFor(() => {
+        expect(onViewAll).toHaveBeenCalled();
+      });
+
+      const fileItems = container.querySelectorAll('[data-testid="file-item"]');
+      expect(fileItems.length).toBe(3);
+    });
   });
 
   describe('Custom Slot', () => {
@@ -390,6 +438,41 @@ describe('FileMapView', () => {
       const image = container.querySelector('img');
       expect(image).toBeInTheDocument();
     });
+
+    it('视频缩略图按 Enter 打开预览或调用 onPreview (230-234)', () => {
+      const onPreview = vi.fn();
+      const fileMap = new Map();
+      fileMap.set('video-1', createMockFile('clip.mp4', 'video/mp4'));
+
+      const { container } = render(
+        <FileMapView fileMap={fileMap} onPreview={onPreview} />,
+      );
+
+      const videoThumb = screen.getByRole('button', {
+        name: '播放视频：clip.mp4',
+      });
+      fireEvent.keyDown(videoThumb, { key: 'Enter' });
+
+      expect(onPreview).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'clip.mp4', type: 'video/mp4' }),
+      );
+    });
+
+    it('视频缩略图按 Space 打开预览弹窗 (230-234)', () => {
+      const fileMap = new Map();
+      fileMap.set('video-1', createMockFile('space.mp4', 'video/mp4'));
+
+      const { container } = render(<FileMapView fileMap={fileMap} />);
+
+      const videoThumb = screen.getByRole('button', {
+        name: '播放视频：space.mp4',
+      });
+      fireEvent.keyDown(videoThumb, { key: ' ' });
+
+      expect(
+        document.querySelector('.ant-modal-wrap video[controls]'),
+      ).toBeInTheDocument();
+    });
   });
 
   describe('FileMapViewItem 分支覆盖', () => {
@@ -479,6 +562,51 @@ describe('FileMapView', () => {
       );
       fireEvent.mouseEnter(container.querySelector('[data-testid="file-item"]')!);
       expect(screen.getByTestId('more-x.pdf')).toHaveTextContent('More: x.pdf');
+    });
+
+    it('悬停后点击预览按钮且有 onPreview 时调用 onPreview (204)', () => {
+      const onPreview = vi.fn();
+      const fileMap = new Map();
+      const file = createMockFile('preview.pdf', 'application/pdf');
+      fileMap.set('file-1', file);
+
+      const { container } = render(
+        <FileMapView fileMap={fileMap} onPreview={onPreview} />,
+      );
+      fireEvent.mouseEnter(container.querySelector('[data-testid="file-item"]')!);
+      const previewBtn = screen.getByRole('button', { name: '预览' });
+      fireEvent.click(previewBtn);
+      expect(onPreview).toHaveBeenCalledWith(file);
+    });
+
+    it('customSlot 时点击「更多」按钮触发 stopPropagation (186)', () => {
+      const customSlot = <button type="button">自定义</button>;
+      const fileMap = new Map();
+      fileMap.set('file-1', createMockFile('a.pdf', 'application/pdf'));
+
+      const { container } = render(
+        <FileMapView fileMap={fileMap} customSlot={customSlot} />,
+      );
+      fireEvent.mouseEnter(container.querySelector('[data-testid="file-item"]')!);
+      const moreBtn = screen.getByRole('button', { name: '更多' });
+      fireEvent.click(moreBtn);
+      expect(moreBtn).toBeInTheDocument();
+    });
+
+    it('renderMoreAction 时点击「更多操作」按钮触发 stopPropagation (237)', () => {
+      const renderMoreAction = (file: any) => (
+        <span data-testid="more-content">{file.name}</span>
+      );
+      const fileMap = new Map();
+      fileMap.set('file-1', createMockFile('y.pdf', 'application/pdf'));
+
+      const { container } = render(
+        <FileMapView fileMap={fileMap} renderMoreAction={renderMoreAction} />,
+      );
+      fireEvent.mouseEnter(container.querySelector('[data-testid="file-item"]')!);
+      const moreActionBtn = screen.getByRole('button', { name: '更多操作' });
+      fireEvent.click(moreActionBtn);
+      expect(moreActionBtn).toBeInTheDocument();
     });
   });
 

@@ -117,6 +117,23 @@ describe('ActionItemContainer targeted coverage', () => {
     fireEvent.mouseUp(popupItems[0]);
   });
 
+  it('覆盖 handleMouseUp 当 draggingIndex 为 null 时分支', () => {
+    capturedFns.length = 0;
+    const { container } = render(
+      <ActionItemContainer showMenu>
+        {createKeyedElement('1', 'Button 1')}
+      </ActionItemContainer>,
+    );
+
+    const popupItems = document.querySelectorAll(
+      '[class*="overflow-container-popup-item"]',
+    );
+    if (popupItems.length > 0) {
+      fireEvent.mouseUp(popupItems[0] as HTMLElement);
+    }
+    expect(container.firstChild).toBeInTheDocument();
+  });
+
   it('覆盖 key 校验中的非 ReactElement 分支', () => {
     capturedFns.length = 0;
     expect(() =>

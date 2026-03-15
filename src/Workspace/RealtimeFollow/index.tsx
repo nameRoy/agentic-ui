@@ -294,7 +294,8 @@ const getContentForEditor = (
   return String(content);
 };
 
-const shouldUpdateEditor = (
+/** 供测试覆盖使用：决定是否根据 type/htmlViewMode 更新编辑器内容 */
+export const shouldUpdateEditor = (
   type: RealtimeFollowMode,
   htmlViewMode: 'preview' | 'code',
 ): boolean => {

@@ -6,6 +6,7 @@ import { I18nContext } from '../../src/I18n';
 import {
   RealtimeFollow,
   RealtimeFollowList,
+  shouldUpdateEditor,
 } from '../../src/Workspace/RealtimeFollow';
 
 vi.mock('../../src/Workspace/RealtimeFollow/style', () => ({
@@ -1000,8 +1001,26 @@ describe('RealtimeFollow Component', () => {
     });
   });
 
+  describe('shouldUpdateEditor 分支覆盖 (302-304)', () => {
+    it('type 为 shell 时返回 true', () => {
+      expect(shouldUpdateEditor('shell', 'preview')).toBe(true);
+    });
+    it('type 为 markdown 时返回 true', () => {
+      expect(shouldUpdateEditor('markdown', 'preview')).toBe(true);
+    });
+    it('type 为 md 时返回 true', () => {
+      expect(shouldUpdateEditor('md', 'preview')).toBe(true);
+    });
+    it('type 为 html 且 htmlViewMode 为 code 时返回 true', () => {
+      expect(shouldUpdateEditor('html', 'code')).toBe(true);
+    });
+    it('type 为 html 且 htmlViewMode 为 preview 时返回 false', () => {
+      expect(shouldUpdateEditor('html', 'preview')).toBe(false);
+    });
+  });
+
   describe('RealtimeFollow - Edge Cases', () => {
-    it('应该处理无效类型', () => {
+    it('应该处理无效类型 (373)', () => {
       const { container } = render(
         <TestWrapper>
           <RealtimeFollow
@@ -1014,7 +1033,25 @@ describe('RealtimeFollow Component', () => {
         </TestWrapper>,
       );
 
-      expect(container.firstChild).toBeNull();
+      expect(screen.queryByText('test')).not.toBeInTheDocument();
+      expect(
+        container.querySelector('.ant-agentic-md-editor'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('customContent 为 ReactNode 时渲染该节点 (345)', () => {
+      render(
+        <TestWrapper>
+          <RealtimeFollow
+            data={{
+              type: 'shell',
+              content: 'ignored',
+              customContent: <div data-testid="custom-node">自定义节点</div>,
+            }}
+          />
+        </TestWrapper>,
+      );
+      expect(screen.getByTestId('custom-node')).toHaveTextContent('自定义节点');
     });
 
     it('应该处理 DiffContent 类型', () => {

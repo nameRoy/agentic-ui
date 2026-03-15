@@ -28,4 +28,9 @@ describe('Enlargement', () => {
 
     expect(onEnlargeClick).toHaveBeenCalledTimes(1);
   });
+
+  it('不传 isEnlarged 时默认为 false 并显示放大', () => {
+    render(<Enlargement onEnlargeClick={vi.fn()} />);
+    expect(screen.getByRole('button', { name: '放大' })).toBeInTheDocument();
+  });
 });
