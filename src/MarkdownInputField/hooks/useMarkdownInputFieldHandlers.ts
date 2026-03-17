@@ -118,7 +118,7 @@ export const useMarkdownInputFieldHandlers = ({
       }
       const imageFiles = (await getFileListFromDataTransferItems(e)).filter(
         (file) => {
-          return file.type.startsWith('image/');
+          return file?.type?.startsWith('image/');
         },
       );
       // 如果没有图片文件，直接返回

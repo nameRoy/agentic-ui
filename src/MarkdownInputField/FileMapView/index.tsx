@@ -3,6 +3,7 @@ import { ConfigProvider, Image, Modal } from 'antd';
 import classNames from 'clsx';
 import { motion } from 'framer-motion';
 import React, { useContext, useMemo, useState } from 'react';
+import { FileMetaPlaceholder } from '../AttachmentButton/AttachmentFileList/AttachmentFileIcon';
 import { AttachmentFile } from '../AttachmentButton/types';
 import { isImageFile, isVideoFile } from '../AttachmentButton/utils';
 import { FileMapViewItem } from './FileMapViewItem';
@@ -184,15 +185,30 @@ export const FileMapView: React.FC<FileMapViewProps> = (props) => {
         )}
       >
         <Image.PreviewGroup>
-          {imgList.map((file, index) => (
-            <Image
-              rootClassName={classNames(`${prefix}-image`, hashId)}
-              width={124}
-              height={124}
-              src={file.previewUrl || file.url}
-              key={file.uuid || file.name || index}
-            />
-          ))}
+          {imgList.map((file, index) => {
+            if (
+              file.status !== undefined &&
+              file.status !== null &&
+              !file.url &&
+              !file.previewUrl
+            ) {
+              return (
+                <FileMetaPlaceholder
+                  file={file}
+                  key={file.uuid || file.name || index}
+                />
+              );
+            }
+            return (
+              <Image
+                rootClassName={classNames(`${prefix}-image`, hashId)}
+                width={124}
+                height={124}
+                src={file.previewUrl || file.url}
+                key={file.uuid || file.name || index}
+              />
+            );
+          })}
         </Image.PreviewGroup>
       </motion.div>
       {videoList.length > 0 && (
@@ -217,6 +233,19 @@ export const FileMapView: React.FC<FileMapViewProps> = (props) => {
             const thumbSize = isSingleVideo
               ? { width: 330, height: 188 }
               : { width: 124, height: 124 };
+            if (
+              file.status !== undefined &&
+              file.status !== null &&
+              !file.url &&
+              !file.previewUrl
+            ) {
+              return (
+                <FileMetaPlaceholder
+                  file={file}
+                  key={file.uuid || file.name || index}
+                />
+              );
+            }
             return (
               <div
                 role="button"

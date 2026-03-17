@@ -75,7 +75,7 @@ describe('AttachmentButtonPopover', () => {
       );
 
       expect(
-        screen.getByText(/Max 10 MB, formats: jpg, jpeg, png, gif\./),
+        screen.getByText(/Max 10 MB, formats: jpg, jpeg, png, gif/),
       ).toBeInTheDocument();
     });
 
@@ -102,7 +102,7 @@ describe('AttachmentButtonPopover', () => {
 
       expect(
         screen.getByText(
-          /Supports file upload, each file not exceeding 10 MB, formats such as jpg, jpeg, png, gif\./,
+          /Supports file upload, each file not exceeding 10 MB, formats such as jpg, jpeg, png, gif/,
         ),
       ).toBeInTheDocument();
     });

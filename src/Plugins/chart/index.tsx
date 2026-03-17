@@ -54,7 +54,11 @@ export type {
   BarChartDataItem,
   BarChartProps,
 } from './BarChart';
-export type { ChartStatisticProps } from './ChartStatistic';
+export type {
+  ChartStatisticClassNames,
+  ChartStatisticProps,
+  ChartStatisticStyles,
+} from './ChartStatistic';
 export type {
   DonutChartConfig,
   DonutChartData,

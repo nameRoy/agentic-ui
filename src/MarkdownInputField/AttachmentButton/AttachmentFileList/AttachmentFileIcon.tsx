@@ -1,10 +1,10 @@
 import { Eye, FileFailed, FileUploadingSpin, Play } from '@sofa-design/icons';
-import { Image } from 'antd';
+import { Image, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { getFileTypeIcon } from '../../../Workspace/File/utils';
 import { FileType } from '../../../Workspace/types';
 import { AttachmentFile } from '../types';
-import { isImageFile, isVideoFile } from '../utils';
+import { isImageFile, isVideoFile, kbToSize } from '../utils';
 
 const VideoThumbnail: React.FC<{
   src: string;
@@ -109,6 +109,79 @@ const IMAGE_STYLE: React.CSSProperties = {
   width: '40px',
   height: '40px',
   overflow: 'hidden',
+};
+
+/** 无 url/previewUrl 时展示文件大小与格式的占位块（内容未拿到） */
+export const FileMetaPlaceholder: React.FC<{
+  file: AttachmentFile;
+  className?: string;
+  style?: React.CSSProperties;
+}> = ({ file, className, style }) => {
+  const sizeBytes = file.size ?? file.uploadResponse?.fileSize ?? 0;
+  const sizeText = sizeBytes > 0 ? kbToSize(sizeBytes / 1024) : '';
+  const extFromName = file.name ? file.name.split('.').pop() || '' : '';
+  const rawFormat = file.uploadResponse?.fileType ?? file.type ?? extFromName;
+  const formatSuffix = rawFormat.includes('/')
+    ? (rawFormat.split('/').pop() ?? '').toUpperCase()
+    : rawFormat.toUpperCase();
+  const formatText = formatSuffix || '-';
+  return (
+    <Tooltip title={file.name}>
+      <div
+        className={className}
+        style={{
+          height: 48,
+          boxSizing: 'border-box',
+          display: 'flex',
+          justifyContent: 'center',
+          borderRadius: 'var(--radius-base, 4px)',
+          background: 'var(--color-fill-quaternary, rgba(0,0,0,0.04))',
+          fontSize: 10,
+          color: 'var(--color-text-tertiary, rgba(0,0,0,0.45))',
+          lineHeight: 1.2,
+          overflow: 'hidden',
+          flex: 1,
+          minWidth: 80,
+          padding: 'var(--padding-1x) var(--padding-2x)',
+          flexDirection: 'column',
+          ...style,
+        }}
+      >
+        {formatText && (
+          <span
+            style={{
+              lineClamp: 1,
+              lineHeight: '20px',
+              height: '20px',
+              boxSizing: 'border-box',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              minWidth: 0,
+              maxWidth: '100%',
+            }}
+          >
+            {formatText}
+          </span>
+        )}
+        {sizeText && (
+          <span
+            style={{
+              lineClamp: 1,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              minWidth: 0,
+              boxSizing: 'border-box',
+              lineHeight: '20px',
+              height: '20px',
+              maxWidth: '100%',
+            }}
+          >
+            {sizeText}
+          </span>
+        )}
+      </div>
+    </Tooltip>
+  );
 };
 
 const IMAGE_PREVIEW_CONFIG = {

@@ -43,7 +43,7 @@ export const kbToSize = (kb: number) => {
  */
 export const isImageFile = (file: File): boolean => {
   // 首先检查 MIME 类型
-  if (file.type.startsWith('image/')) {
+  if (file?.type?.startsWith('image/')) {
     return true;
   }
 
@@ -110,6 +110,17 @@ export const isVideoFile = (file: File): boolean => {
  */
 export const isMediaFile = (file: File): boolean =>
   isImageFile(file) || isVideoFile(file);
+
+/**
+ * 是否为「仅元信息占位」状态：有 status 但无 url/previewUrl，内容未拿到时整行以 FileMetaPlaceholder 风格展示
+ */
+export const isFileMetaPlaceholderState = (
+  file: File & { status?: string; url?: string; previewUrl?: string },
+): boolean =>
+  file.status !== undefined &&
+  file.status !== null &&
+  !file.url &&
+  !(file as { previewUrl?: string }).previewUrl;
 
 /**
  * 设备品牌匹配列表

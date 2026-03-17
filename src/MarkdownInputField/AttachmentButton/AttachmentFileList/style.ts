@@ -208,6 +208,15 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
           display: 'flex',
         },
       },
+      '&-item-meta-placeholder': {
+        background: 'var(--color-fill-quaternary, rgba(0,0,0,0.04))',
+        [`${token.componentCls}-item-file-name-text`]: {
+          color: 'var(--color-text-tertiary, rgba(0,0,0,0.45))',
+        },
+        [`${token.componentCls}-item-file-size`]: {
+          color: 'var(--color-text-tertiary, rgba(0,0,0,0.45))',
+        },
+      },
     },
     [`${token.componentCls}-container`]: {
       position: 'relative',

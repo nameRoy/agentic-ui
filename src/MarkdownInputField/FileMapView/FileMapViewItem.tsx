@@ -6,9 +6,15 @@ import { motion } from 'framer-motion';
 import React, { useContext } from 'react';
 import { ActionIconBox } from '../../Components/ActionIconBox';
 import { I18nContext } from '../../I18n';
-import { AttachmentFileIcon } from '../AttachmentButton/AttachmentFileList/AttachmentFileIcon';
+import {
+  AttachmentFileIcon,
+  FileMetaPlaceholder,
+} from '../AttachmentButton/AttachmentFileList/AttachmentFileIcon';
 import { AttachmentFile } from '../AttachmentButton/types';
-import { kbToSize } from '../AttachmentButton/utils';
+import {
+  isFileMetaPlaceholderState,
+  kbToSize,
+} from '../AttachmentButton/utils';
 
 /**
  * FileMapViewItem 组件 - 文件映射视图项组件
@@ -71,6 +77,16 @@ export const FileMapViewItem: React.FC<{
     lastDotIndex > 0 && lastDotIndex < fileName.length - 1
       ? fileName.slice(lastDotIndex + 1)
       : '';
+
+  // 有 status 但无 url/previewUrl：文件内容未拿到，展示大小与格式占位块
+  if (
+    file.status !== undefined &&
+    file.status !== null &&
+    !file.url &&
+    !file.previewUrl
+  ) {
+    return <FileMetaPlaceholder file={file} />;
+  }
   return (
     <Tooltip
       title={<div>{locale?.clickToPreview}</div>}
@@ -96,7 +112,10 @@ export const FileMapViewItem: React.FC<{
           exit: { x: -20, opacity: 0 },
         }}
         exit={{ opacity: 0, x: -20 }}
-        className={props.className}
+        className={classNames(props.className, {
+          [`${props.prefixCls}-meta-placeholder`]:
+            isFileMetaPlaceholderState(file),
+        })}
         data-testid="file-item"
       >
         <div

@@ -5,8 +5,8 @@ import { motion } from 'framer-motion';
 import React, { useContext } from 'react';
 import { I18nContext } from '../../../I18n';
 import { AttachmentFile } from '../types';
-import { kbToSize } from '../utils';
-import { AttachmentFileIcon } from './AttachmentFileIcon';
+import { isFileMetaPlaceholderState, kbToSize } from '../utils';
+import { AttachmentFileIcon, FileMetaPlaceholder } from './AttachmentFileIcon';
 
 type FileStatus = 'uploading' | 'error' | 'done';
 
@@ -74,10 +74,7 @@ const FileSizeInfo: React.FC<{
     uploading: locale?.uploading || '上传中...',
     error: (
       <div
-        className={classNames(
-          baseClassName,
-          `${prefixCls}-file-size-error`,
-        )}
+        className={classNames(baseClassName, `${prefixCls}-file-size-error`)}
       >
         {locale?.uploadFailed || '上传失败'}
       </div>
@@ -160,6 +157,16 @@ export const AttachmentFileListItem: React.FC<FileListItemProps> = ({
     onDelete(file);
   };
 
+  // 有 status 但无 url/previewUrl：文件内容未拿到，展示大小与格式占位块
+  if (
+    file.status !== undefined &&
+    file.status !== null &&
+    !file.url &&
+    !file.previewUrl
+  ) {
+    return <FileMetaPlaceholder file={file} className={className} />;
+  }
+
   return (
     <Tooltip
       title={locale?.clickToRetry || '点击重试'}
@@ -168,7 +175,10 @@ export const AttachmentFileListItem: React.FC<FileListItemProps> = ({
       <motion.div
         variants={ANIMATION_VARIANTS}
         onClick={handleFileClick}
-        className={className}
+        className={classNames(className, {
+          [`${prefixCls}-meta-placeholder`]: isFileMetaPlaceholderState(file),
+        })}
+        data-testid="file-item"
         exit={ANIMATION_VARIANTS.exit}
       >
         <FileIcon file={file} prefixCls={prefixCls} hashId={hashId} />
@@ -177,9 +187,7 @@ export const AttachmentFileListItem: React.FC<FileListItemProps> = ({
             onClick={handleRetryClick}
             className={classNames(`${prefixCls}-file-name`, hashId)}
           >
-            <span
-              className={classNames(`${prefixCls}-file-name-text`, hashId)}
-            >
+            <span className={classNames(`${prefixCls}-file-name-text`, hashId)}>
               {getFileNameWithoutExtension(file.name)}
             </span>
           </div>

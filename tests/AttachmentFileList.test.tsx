@@ -22,14 +22,14 @@ vi.mock('../src/icons/LoadingIcon', () => ({
 
 // Mock antd Image to expose preview close callback for coverage
 vi.mock('antd', async (importOriginal) => {
-  const mod = await importOriginal() as Record<string, unknown>;
+  const mod = (await importOriginal()) as Record<string, unknown>;
   return {
     ...mod,
     Image: function MockImage({ preview, src, alt, ...rest }: any) {
       return (
         <div data-testid="image-preview-wrapper">
           <img src={src} alt={alt} {...rest} />
-          {preview?.onVisibleChange != null && (
+          {preview?.onVisibleChange && (
             <button
               type="button"
               data-testid="close-preview"
@@ -418,7 +418,7 @@ describe('AttachmentFileList', () => {
     });
     fileMap.set('uuid1', file);
 
-    const { container } = render(
+    render(
       <AttachmentFileList
         fileMap={fileMap}
         onDelete={mockOnDelete}
@@ -432,11 +432,16 @@ describe('AttachmentFileList', () => {
     });
 
     const imagePreview = screen.getByAltText('Preview');
-    expect(imagePreview).toHaveAttribute('src', 'https://example.com/preview.jpg');
+    expect(imagePreview).toHaveAttribute(
+      'src',
+      'https://example.com/preview.jpg',
+    );
   });
 
   it('should open file in new window when previewing non-image file without onPreview', async () => {
-    const windowOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const windowOpenSpy = vi
+      .spyOn(window, 'open')
+      .mockImplementation(() => null);
     const fileMap = new Map();
     const file = createMockFile({
       name: 'doc.pdf',
@@ -460,12 +465,17 @@ describe('AttachmentFileList', () => {
       fireEvent.click(fileItem!);
     });
 
-    expect(windowOpenSpy).toHaveBeenCalledWith('https://example.com/doc.pdf', '_blank');
+    expect(windowOpenSpy).toHaveBeenCalledWith(
+      'https://example.com/doc.pdf',
+      '_blank',
+    );
     windowOpenSpy.mockRestore();
   });
 
   it('should not call window.open when file has no url and no previewUrl', async () => {
-    const windowOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const windowOpenSpy = vi
+      .spyOn(window, 'open')
+      .mockImplementation(() => null);
     const fileMap = new Map();
     const file = createMockFile({
       name: 'doc.pdf',
@@ -484,7 +494,8 @@ describe('AttachmentFileList', () => {
       />,
     );
 
-    const fileItem = screen.getByText('doc').closest('div');
+    // 无 url/previewUrl 时渲染 FileMetaPlaceholder，显示类型标签（如 PDF）与大小
+    const fileItem = screen.getByText('PDF').closest('div');
     await act(async () => {
       fireEvent.click(fileItem!);
     });
@@ -570,7 +581,10 @@ describe('AttachmentFileList', () => {
     });
 
     const imagePreview = screen.getByAltText('Preview');
-    expect(imagePreview).toHaveAttribute('src', 'https://example.com/preview.jpg');
+    expect(imagePreview).toHaveAttribute(
+      'src',
+      'https://example.com/preview.jpg',
+    );
 
     const closeBtn = screen.getByTestId('close-preview');
     await act(async () => {

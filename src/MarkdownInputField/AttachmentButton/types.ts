@@ -16,6 +16,7 @@ export type AttachmentFile = File & {
   url?: string;
   status?: 'error' | 'uploading' | 'done';
   uuid?: string;
+  size?: number | null;
   previewUrl?: string;
   /** 上传响应数据（使用 uploadWithResponse 时会填充此字段） */
   uploadResponse?: UploadResponse;

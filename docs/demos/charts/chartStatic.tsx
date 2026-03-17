@@ -17,6 +17,7 @@ const ChartStatisticDemo: React.FC = () => {
           <Card variant="borderless">
             <ChartStatistic
               title="总销售额"
+              subtitle="2026-03-17"
               value={1234567.89}
               precision={2}
               prefix="¥"
