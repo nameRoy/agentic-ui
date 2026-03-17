@@ -70,6 +70,19 @@ describe('FileTypeProcessor', () => {
       expect(result.category).toBe(FileCategory.Text);
     });
 
+    it('应该从 File 的 MIME 类型 image/png 推断为 image (141)', () => {
+      const fileObj = new File(['x'], 'pic.png', { type: 'image/png' });
+      const file = {
+        id: 'f1',
+        name: 'pic.png',
+        file: fileObj,
+      };
+      const result = processor.inferFileType(file);
+
+      expect(result.fileType).toBe('image');
+      expect(result.category).toBe(FileCategory.Image);
+    });
+
     it('应该从文件名扩展名推断', () => {
       const file = {
         id: 'f1',
@@ -431,6 +444,29 @@ describe('FileTypeProcessor', () => {
       expect(result.previewMode).toBe('modal');
     });
 
+    it('有内容的视频文件应返回 inline 预览模式 (223)', () => {
+      const file = {
+        id: 'f1',
+        name: 'video.mp4',
+        content: 'video-data',
+      };
+      const result = processor.processFile(file);
+      expect(result.typeInference.category).toBe(FileCategory.Video);
+      expect(result.canPreview).toBe(true);
+      expect(result.previewMode).toBe('inline');
+    });
+
+    it('有内容的音频文件应返回 inline 预览模式', () => {
+      const file = {
+        id: 'f1',
+        name: 'audio.mp3',
+        content: 'audio-data',
+      };
+      const result = processor.processFile(file);
+      expect(result.typeInference.category).toBe(FileCategory.Audio);
+      expect(result.canPreview).toBe(true);
+      expect(result.previewMode).toBe('inline');
+    });
   });
 
   describe('便捷函数', () => {

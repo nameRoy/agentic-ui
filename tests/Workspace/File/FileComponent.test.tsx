@@ -1103,7 +1103,7 @@ describe('FileComponent', () => {
       expect(screen.getAllByText('doc.pdf').length).toBeGreaterThan(0);
     });
 
-    it('预览内点击分享且未传 onShare 时调用 handleDefaultShare (1064)', async () => {
+    it('预览内点击分享且未传 onShare 时调用 handleDefaultShare (1080)', async () => {
       const actionRef = React.createRef<any>();
       const nodes: FileNode[] = [
         {
@@ -1132,6 +1132,46 @@ describe('FileComponent', () => {
       await waitFor(() => {
         expect(mockClipboard.writeText).toHaveBeenCalled();
       });
+    });
+
+    it('onPreview 返回无 name 的对象时使用原 file 作为预览文件 (964-966)', async () => {
+      const nodes: FileNode[] = [
+        { id: 'f1', name: 'orig.txt', content: 'Hello' },
+      ];
+      const onPreview = vi.fn().mockResolvedValue({ id: 'other' });
+
+      render(
+        <TestWrapper>
+          <FileComponent nodes={nodes} onPreview={onPreview} />
+        </TestWrapper>,
+      );
+
+      fireEvent.click(screen.getByLabelText('预览'));
+
+      await waitFor(() => {
+        expect(onPreview).toHaveBeenCalled();
+      });
+      await waitFor(() => {
+        expect(screen.getByLabelText('返回文件列表')).toBeInTheDocument();
+      });
+      expect(screen.getAllByText('orig.txt').length).toBeGreaterThan(0);
+    });
+
+    it('卸载时 actionRef.current 置为 null (1064)', () => {
+      const actionRef = React.createRef<any>();
+      const nodes: FileNode[] = [
+        { id: 'f1', name: 'a.txt', content: 'x' },
+      ];
+
+      const { unmount } = render(
+        <TestWrapper>
+          <FileComponent nodes={nodes} actionRef={actionRef} />
+        </TestWrapper>,
+      );
+
+      expect(actionRef.current).not.toBeNull();
+      unmount();
+      expect(actionRef.current).toBeNull();
     });
   });
 
