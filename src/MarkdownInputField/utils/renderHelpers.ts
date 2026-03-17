@@ -3,6 +3,7 @@ import type { AttachmentButtonProps } from '../AttachmentButton';
 import { AttachmentFileList } from '../AttachmentButton/AttachmentFileList';
 import type { AttachmentFile } from '../AttachmentButton/types';
 import { SendActions } from '../SendActions';
+import { MARKDOWN_INPUT_FIELD_TEST_IDS } from '../testIds';
 import type { MarkdownInputFieldProps } from '../types/MarkdownInputFieldProps';
 
 interface UseAttachmentListParams {
@@ -32,6 +33,7 @@ export const useAttachmentList = ({
       onClearFileMap: () => {
         updateAttachmentFiles(undefined);
       },
+      dataTestId: MARKDOWN_INPUT_FIELD_TEST_IDS.ATTACHMENT_LIST,
     });
   }, [
     attachment?.enable,

@@ -16,6 +16,8 @@ export type AttachmentFileListProps = {
   onDownload?: (file: AttachmentFile) => void;
   onRetry?: (file: AttachmentFile) => void;
   onClearFileMap?: () => void;
+  /** E2E 测试 ID */
+  dataTestId?: string;
 };
 
 const ANIMATION_VARIANTS = {
@@ -81,6 +83,7 @@ export const AttachmentFileList: React.FC<AttachmentFileListProps> = ({
   onDownload,
   onRetry,
   onClearFileMap,
+  dataTestId,
 }) => {
   const context = useContext(ConfigProvider.ConfigContext);
   const prefix = context?.getPrefixCls('agentic-md-editor-attachment-list');
@@ -118,6 +121,7 @@ export const AttachmentFileList: React.FC<AttachmentFileListProps> = ({
       className={classNames(`${prefix}-container`, hashId, {
         [`${prefix}-container-empty`]: !hasFiles,
       })}
+      data-testid={dataTestId}
     >
       <motion.div
         variants={ANIMATION_VARIANTS}

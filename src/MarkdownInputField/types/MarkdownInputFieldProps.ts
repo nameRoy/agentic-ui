@@ -425,6 +425,12 @@ export type MarkdownInputFieldProps = {
   targetRef?: React.RefObject<HTMLDivElement>;
 
   /**
+   * 测试 ID
+   * @description 用于 E2E 或自动化测试中的 `data-testid` 属性，覆盖根元素的默认 `markdown-input-field`
+   */
+  testId?: string;
+
+  /**
    * 顶部操作区域自定义操作按钮渲染函数
    * @description 用于在顶部操作区域中央渲染自定义操作按钮
    * @returns 要渲染的操作按钮节点

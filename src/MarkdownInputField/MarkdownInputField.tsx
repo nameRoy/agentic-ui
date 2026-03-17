@@ -14,6 +14,7 @@ import { QuickActions } from './QuickActions';
 import { SkillModeBar } from './SkillModeBar';
 import { useStyle } from './style';
 import { Suggestion } from './Suggestion';
+import { MARKDOWN_INPUT_FIELD_TEST_IDS } from './testIds';
 import TopOperatingArea from './TopOperatingArea';
 import type { MarkdownInputFieldProps } from './types/MarkdownInputFieldProps';
 import {
@@ -76,6 +77,7 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
   onBlur,
   onFocus,
   isShowTopOperatingArea = false,
+  testId,
   ...props
 }) => {
   // 默认关闭文件上传，需显式传入 attachment.enable: true 开启
@@ -139,7 +141,7 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
     computedMinHeight,
     enlargedStyle,
   } = useMarkdownInputFieldStyles({
-    toolsRender: props.toolsRender,
+    hasTools: !!props.toolsRender || !!props.actionsRender,
     maxHeight: props.maxHeight,
     style: props.style,
     attachment,
@@ -267,7 +269,10 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
   return wrapSSR(
     <>
       {isShowTopOperatingArea && (
-        <div className={classNames(`${baseCls}-top-area`, hashId)}>
+        <div
+          className={classNames(`${baseCls}-top-area`, hashId)}
+          data-testid={MARKDOWN_INPUT_FIELD_TEST_IDS.TOP_AREA}
+        >
           <TopOperatingArea
             targetRef={props.targetRef}
             operationBtnRender={props.operationBtnRender}
@@ -276,7 +281,10 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
         </div>
       )}
       {beforeTools ? (
-        <div className={classNames(`${baseCls}-before-tools`, hashId)}>
+        <div
+          className={classNames(`${baseCls}-before-tools`, hashId)}
+          data-testid={MARKDOWN_INPUT_FIELD_TEST_IDS.BEFORE_TOOLS}
+        >
           {beforeTools}
         </div>
       ) : null}
@@ -289,7 +297,7 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
       >
         <div
           ref={inputRef}
-          data-testid="markdown-input-field"
+          data-testid={testId ?? MARKDOWN_INPUT_FIELD_TEST_IDS.ROOT}
           className={classNames(baseCls, hashId, props.className, {
             [`${baseCls}-disabled`]: props.disabled,
             [`${baseCls}-skill-mode`]: props.skillMode?.open,
@@ -341,6 +349,7 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
               [`${baseCls}-editor-hover`]: isHover,
               [`${baseCls}-editor-disabled`]: props.disabled,
             })}
+            data-testid={MARKDOWN_INPUT_FIELD_TEST_IDS.EDITOR}
           >
             {/* 技能模式部分 */}
             <SkillModeBar
@@ -348,7 +357,10 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
               onSkillModeOpenChange={props.onSkillModeOpenChange}
             />
 
-            <div className={classNames(`${baseCls}-editor-content`, hashId)}>
+            <div
+              className={classNames(`${baseCls}-editor-content`, hashId)}
+              data-testid={MARKDOWN_INPUT_FIELD_TEST_IDS.EDITOR_CONTENT}
+            >
               {attachmentList}
 
               <BaseMarkdownEditor
@@ -457,14 +469,18 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
               </BaseMarkdownEditor>
             </div>
           </div>
-          {props.toolsRender ? (
-            <div className={classNames(`${baseCls}-tools-wrapper`, hashId)}>
+          {props.toolsRender || props.actionsRender ? (
+            <div
+              className={classNames(`${baseCls}-tools-wrapper`, hashId)}
+              data-testid={MARKDOWN_INPUT_FIELD_TEST_IDS.TOOLS_WRAPPER}
+            >
               <div
                 ref={actionsRef}
                 contentEditable={false}
                 className={classNames(`${baseCls}-send-tools`, hashId)}
+                data-testid={MARKDOWN_INPUT_FIELD_TEST_IDS.SEND_TOOLS}
               >
-                {props.toolsRender({
+                {props?.toolsRender?.({
                   value,
                   fileMap,
                   onFileMapChange: setFileMap,

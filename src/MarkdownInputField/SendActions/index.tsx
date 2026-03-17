@@ -12,6 +12,7 @@ import type { SendButtonCustomizationProps } from '../SendButton';
 import { SendButton } from '../SendButton';
 import type { CreateRecognizer } from '../VoiceInput';
 import { VoiceInputButton } from '../VoiceInput';
+import { MARKDOWN_INPUT_FIELD_TEST_IDS } from '../testIds';
 
 export interface SendActionsProps {
   /** 附件配置 */
@@ -254,6 +255,7 @@ export const SendActions: React.FC<SendActionsProps> = ({
           },
           hashId,
         )}
+        data-testid={MARKDOWN_INPUT_FIELD_TEST_IDS.SEND_ACTIONS}
       >
         {collapseSendActions && actionsList.length > 2 ? (
           <>
@@ -291,6 +293,7 @@ export const SendActions: React.FC<SendActionsProps> = ({
                   fontSize: 16,
                   color: 'var(--color-gray-text-secondary)',
                 }}
+                data-testid={MARKDOWN_INPUT_FIELD_TEST_IDS.MORE_ACTIONS}
               >
                 <EllipsisVertical />
               </ActionIconBox>

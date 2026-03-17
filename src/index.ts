@@ -82,6 +82,7 @@ export * from './MarkdownInputField/AttachmentButton/utils';
 export { ActionItemContainer } from './MarkdownInputField/BeforeToolContainer/BeforeToolContainer';
 export * from './MarkdownInputField/FileMapView';
 export * from './MarkdownInputField/MarkdownInputField';
+export { MARKDOWN_INPUT_FIELD_TEST_IDS } from './MarkdownInputField/testIds';
 export * from './MarkdownInputField/VoiceInput';
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
