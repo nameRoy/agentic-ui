@@ -1292,6 +1292,30 @@ const handleBlockquote = (
   parent: any[],
   plugins?: MarkdownEditorPlugin[],
 ) => {
+  const containerType = node.otherProps?.markdownContainerType as
+    | string
+    | undefined;
+  const containerTitle = node.otherProps?.markdownContainerTitle as
+    | string
+    | undefined;
+
+  if (containerType) {
+    const innerContent =
+      node.children?.length > 0
+        ? node.children
+            .map((child: any) =>
+              parserNode(child, '', [...parent, node], plugins),
+            )
+            .join('\n\n')
+            .trim()
+        : '';
+    const open =
+      containerTitle != null && String(containerTitle).trim()
+        ? `:::${containerType}{title="${String(containerTitle).trim()}"}`
+        : `:::${containerType}`;
+    return `${open}\n\n${innerContent || ''}\n\n:::`;
+  }
+
   // Handle empty blockquotes
   if (!node.children || node.children.length === 0) {
     return '> ';

@@ -1,6 +1,7 @@
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
+import remarkDirective from 'remark-directive';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -10,12 +11,12 @@ import type { Plugin, Processor } from 'unified';
 import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 import { JINJA_DOLLAR_PLACEHOLDER } from '../parser/constants';
+import { remarkDirectiveContainer } from '../parser/remarkDirectiveContainer';
 import {
   convertParagraphToImage,
   fixStrongWithSpecialChars,
   protectJinjaDollarInText,
 } from '../parser/remarkParse';
-import { remarkContainer } from '../parser/remarkContainer';
 
 // 使用 any 类型避免 hast 类型依赖问题
 type HastElement = {
@@ -196,8 +197,8 @@ function rehypeCodeBlock(): Plugin<[], HastRoot> {
   };
 }
 
-/** 内置容器插件配置：支持 ::: type 语法（兼容 markdown-it-container） */
-const REMARK_CONTAINER_OPTIONS = {
+/** 内置容器插件配置：remark-directive 容器转 div.markdown-container（兼容 markdown-it-container 风格） */
+const REMARK_DIRECTIVE_CONTAINER_OPTIONS = {
   className: 'markdown-container',
   titleElement: { className: ['markdown-container__title'] },
 };
@@ -211,7 +212,8 @@ export const DEFAULT_MARKDOWN_REMARK_PLUGINS: readonly MarkdownRemarkPlugin[] =
     protectJinjaDollarInText,
     [remarkMath as unknown as Plugin, INLINE_MATH_WITH_SINGLE_DOLLAR],
     [remarkFrontmatter, FRONTMATTER_LANGUAGES],
-    [remarkContainer, REMARK_CONTAINER_OPTIONS],
+    remarkDirective,
+    [remarkDirectiveContainer, REMARK_DIRECTIVE_CONTAINER_OPTIONS],
     [remarkRehypePlugin, { allowDangerousHtml: true }],
   ] as const;
 

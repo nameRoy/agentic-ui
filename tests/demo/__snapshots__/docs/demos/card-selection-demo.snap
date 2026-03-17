@@ -181,7 +181,69 @@
                     <span
                       data-slate-string="true"
                     >
-                      https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400","mediaType":"video","children":[{"text":""}]},{"type":"card-after","children":[{"text":""}]}]},{"type":"paragraph","children":[{"text":"内联卡片："}]},{"type":"card","block":false,"children":[{"type":"card-before","children":[{"text":""}]},{"type":"image","url":"https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=200","mediaType":"image","alt":"内联图片","children":[{"text":""}]},{"type":"card-after","children":[{"text":""}]}]},{"type":"paragraph","children":[{"text
+                      https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400","mediaType":"video","children":[{"text":""}]},{"type":"card-after","children":[{"text":""}]}]},{"type":"paragraph","children":[{"text":"内联卡片："}]},{"type":"card","block
+                    </span>
+                  </span>
+                </span>
+                <span
+                  data-slate-node="text"
+                >
+                  <span
+                    data-be="text"
+                    data-slate-leaf="true"
+                    draggable="false"
+                  >
+                    <span
+                      data-slate-string="true"
+                    >
+                      "
+                    </span>
+                  </span>
+                </span>
+                <span
+                  data-slate-node="text"
+                >
+                  <span
+                    data-be="text"
+                    data-slate-leaf="true"
+                    draggable="false"
+                  >
+                    <span
+                      data-slate-length="0"
+                      data-slate-zero-width="z"
+                    >
+                      ﻿
+                    </span>
+                  </span>
+                </span>
+                <span
+                  data-slate-node="text"
+                >
+                  <span
+                    data-be="text"
+                    data-slate-leaf="true"
+                    draggable="false"
+                  >
+                    <span
+                      data-slate-string="true"
+                    >
+                      ,"children":[{"type":"card-before","children":[{"text":""}]},{"type":"image","url":"
+                    </span>
+                  </span>
+                </span>
+                <span
+                  data-slate-node="text"
+                >
+                  <span
+                    data-be="text"
+                    data-slate-leaf="true"
+                    data-url="url"
+                    draggable="false"
+                  >
+                    <span
+                      data-slate-string="true"
+                    >
+                      https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=200","mediaType":"image","alt":"内联图片","children":[{"text":""}]},{"type":"card-after","children":[{"text":""}]}]},{"type":"paragraph","children":[{"text
                     </span>
                   </span>
                 </span>

@@ -142,9 +142,11 @@ Use three or more `-`, `*`, or `_`.
 - [ ] Incomplete task
 ```
 
-## Alerts
+## Tip blocks
 
-Use `:::` syntax to create different types of alert blocks (markdown-it-container compatible). **Note**: Blank lines are required between `:::` and content.
+Use `remark-directive` container syntax `:::` to create different types of tip blocks; they render as styled `div.markdown-container` (markdown-it-container style). **Note**: Blank lines are required between `:::` and content. Use attribute `{title="Title"}` for a block with a title.
+
+<code src="../demos/tip-blocks-demo.tsx" background="var(--main-bg-color)" iframe=420></code>
 
 ```markdown
 :::info
@@ -168,6 +170,12 @@ This is a success alert.
 :::error
 
 This is an error alert.
+
+:::
+
+:::tip{title="Tip"}
+
+This is a tip block with a title.
 
 :::
 ```

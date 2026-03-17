@@ -463,6 +463,10 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
           borderLeftColor: 'var(--color-error, #ff4d4f)',
           backgroundColor: 'var(--color-error-bg, rgba(255, 77, 79, 0.08))',
         },
+        '&.tip': {
+          borderLeftColor: 'var(--color-info, #1677ff)',
+          backgroundColor: 'var(--color-info-bg, rgba(22, 119, 255, 0.08))',
+        },
       },
       '[data-be="media-container"], [data-be="image-container"]': {
         display: 'flex',

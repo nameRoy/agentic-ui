@@ -175,8 +175,8 @@ title: Test
       expect(result).toContain('这是错误提示块');
     });
 
-    it('应该支持带标题的 ::: 容器', async () => {
-      const markdown = `::: tip 提示
+    it('应该支持带标题的 ::: 容器（remark-directive 语法 title 属性）', async () => {
+      const markdown = `:::tip{title="提示"}
 
 这是一条带标题的提示块。
 

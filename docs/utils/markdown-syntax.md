@@ -142,9 +142,11 @@ function hello() {
 - [ ] 未完成任务
 ```
 
-## 提示块 (Alerts)
+## 提示块 (Tip blocks)
 
-使用 `:::` 语法可以创建不同类型的提示块（兼容 markdown-it-container）。**注意**：`:::` 与内容之间需用空行分隔。
+使用 `remark-directive` 的容器语法 `:::` 创建不同类型的提示块，渲染为带样式的 `div.markdown-container`（兼容 markdown-it-container 风格）。**注意**：`:::` 与内容之间需用空行分隔。带标题时使用属性语法 `{title="标题"}`。
+
+<code src="../demos/tip-blocks-demo.tsx" background="var(--main-bg-color)" iframe=420></code>
 
 ```markdown
 :::info
@@ -168,6 +170,12 @@ function hello() {
 :::error
 
 这是一个错误提示块。
+
+:::
+
+:::tip{title="提示"}
+
+这是一条带标题的提示块。
 
 :::
 ```
