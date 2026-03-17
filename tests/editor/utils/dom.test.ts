@@ -246,6 +246,9 @@ describe('DOM Utils', () => {
 
     it('应该处理data URL', () => {
       expect(getMediaType('data:image/png;base64,123')).toBe('image');
+      expect(getMediaType('data:video/mp4;base64,xxx')).toBe('video');
+      expect(getMediaType('data:audio/mpeg;base64,xxx')).toBe('audio');
+      expect(getMediaType('data:invalid;base64,123')).toBe('other');
       expect(getMediaType('test.jpg', 'data:image/png;base64,123')).toBe(
         'image',
       );
