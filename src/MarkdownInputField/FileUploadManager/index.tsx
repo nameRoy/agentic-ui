@@ -257,11 +257,12 @@ export const useFileUploadManager = ({
         map.set(file.uuid || '', file);
         updateAttachmentFiles(map);
       }
-    } catch {
+    } catch (error) {
       file.status = 'error';
       const map = new Map(fileMap);
       map.set(file.uuid || '', file);
       updateAttachmentFiles(map);
+      console.error('Error retrying file upload:', error);
     }
   });
 

@@ -3,6 +3,7 @@ import { Element } from 'slate';
 
 import { ChartTypeConfig, Elements } from '../../el';
 import { MarkdownEditorPlugin } from '../../plugin';
+import { preprocessProtectTimeFromDirective } from './constants';
 import { applyContextPropsAndConfig } from './parse/applyContextPropsAndConfig';
 import {
   handleBlockquote,
@@ -21,7 +22,6 @@ import {
   handleThematicBreak,
 } from './parse/parseElements';
 import { addEmptyLinesIfNeeded } from './parse/parseEmptyLines';
-import { preprocessProtectTimeFromDirective } from './constants';
 import { handleFootnoteReference } from './parse/parseFootnote';
 import {
   handleHtml,

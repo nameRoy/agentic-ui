@@ -17,8 +17,8 @@ import { CardNode, ChartNode, CodeNode, Elements } from '../../../el';
 import { MarkdownEditorPlugin } from '../../../plugin';
 import { TableNode, TrNode as TableRowNode } from '../../types/Table';
 import { EditorUtils } from '../../utils';
-import type { ParserMarkdownToSlateNodeConfig } from '../parserMarkdownToSlateNode';
 import { REMARK_REHYPE_DIRECTIVE_HANDLERS } from '../../utils/markdownToHtml';
+import type { ParserMarkdownToSlateNodeConfig } from '../parserMarkdownToSlateNode';
 
 // 表格相关常量
 export const MIN_TABLE_CELL_LENGTH = 5; // 表格单元格最小长度

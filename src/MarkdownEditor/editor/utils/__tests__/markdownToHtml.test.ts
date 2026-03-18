@@ -22,11 +22,9 @@ describe('markdownToHtml', () => {
   });
 
   it('openLinksInNewTab 开启时应为链接追加 target 与 rel', () => {
-    const html = markdownToHtmlSync(
-      '[官网](https://example.com)',
-      undefined,
-      { openLinksInNewTab: true },
-    );
+    const html = markdownToHtmlSync('[官网](https://example.com)', undefined, {
+      openLinksInNewTab: true,
+    });
 
     expect(html).toContain('target="_blank"');
     expect(html).toContain('rel="noopener noreferrer"');

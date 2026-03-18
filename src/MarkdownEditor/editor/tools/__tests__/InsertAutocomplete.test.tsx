@@ -1115,12 +1115,10 @@ describe('InsertAutocomplete insertAttachment', () => {
         await act(async () => {});
       }
     }
-    global.fetch = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        headers: new Headers({ 'content-length': '0' }),
-      });
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({ 'content-length': '0' }),
+    });
   });
 
   it('insertAttachByLink with http URL extracts filename from path', async () => {
