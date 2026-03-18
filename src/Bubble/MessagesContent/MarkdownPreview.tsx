@@ -106,6 +106,7 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
   const config = useContext(BubbleConfigContext);
   const locale = useLocale();
   const standalone = config?.standalone;
+  const extraShowOnHover = config?.extraShowOnHover;
   const { token } = theme.useToken();
 
   const isPaddingHidden = useMemo(() => {
@@ -178,30 +179,50 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
     </div>
   );
 
-  const innerContent = (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        minWidth: 0,
-        maxWidth: '100%',
-      }}
-    >
-      <ErrorBoundary fallback={errorDom}>
-        {beforeContent}
-        {markdown}
-        {docListNode}
-        {afterContent}
-      </ErrorBoundary>
-    </div>
-  );
-
-  // 无 extra 时直接返回内容，避免 hover 出现空浮层
-  if (!extra) {
-    return innerContent;
+  // 未开启 extraShowOnHover 时，extra 常驻展示（左右均作为兄弟节点渲染）
+  if (!extraShowOnHover) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+          maxWidth: '100%',
+        }}
+      >
+        <ErrorBoundary fallback={errorDom}>
+          {beforeContent}
+          {markdown}
+          {docListNode}
+          {afterContent}
+        </ErrorBoundary>
+        {extra}
+      </div>
+    );
   }
 
-  // 左右两侧均通过 Popover 在 hover 时展示 extra
+  // extraShowOnHover 开启时，无 extra 直接返回内容，避免 hover 出现空浮层
+  if (!extra) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+          maxWidth: '100%',
+        }}
+      >
+        <ErrorBoundary fallback={errorDom}>
+          {beforeContent}
+          {markdown}
+          {docListNode}
+          {afterContent}
+        </ErrorBoundary>
+      </div>
+    );
+  }
+
+  // extraShowOnHover 开启时，左右两侧均通过 Popover 在 hover 时展示 extra
   const isLeft = props.placement === 'left';
   const popoverAlign = isLeft
     ? { points: ['tl', 'bl'] as const, offset: [0, -12] as [number, number] }
@@ -230,7 +251,21 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
       arrow={false}
       placement={popoverPlacement}
     >
-      {innerContent}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+          maxWidth: '100%',
+        }}
+      >
+        <ErrorBoundary fallback={errorDom}>
+          {beforeContent}
+          {markdown}
+          {docListNode}
+          {afterContent}
+        </ErrorBoundary>
+      </div>
     </Popover>
   );
 };
