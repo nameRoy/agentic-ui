@@ -84,7 +84,7 @@ describe('ToolUseBarThink', () => {
         />
       </Wrapper>,
     );
-    fireEvent.click(screen.getByTestId('tool-use-bar-think-bar'));
+    // defaultExpanded 下内容区已展开，无需点击 bar（点击会收起）
     expect(screen.getByTestId('think-body')).toBeInTheDocument();
     expect(
       screen.queryByTestId('tool-use-bar-think-content-expand'),

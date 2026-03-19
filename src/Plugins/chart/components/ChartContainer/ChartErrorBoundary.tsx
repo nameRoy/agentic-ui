@@ -90,7 +90,7 @@ class ChartErrorBoundary extends React.Component<
 
     // 在开发环境下打印错误信息
     if (process.env.NODE_ENV === 'development') {
-      console.error('ChartErrorBoundary caught an error:', error);
+      console.error('ChartErrorBoundary caught an error:', error, errorInfo);
     }
 
     // 自动重试一次：清除错误并递增 key，使 children 销毁后重建
