@@ -287,6 +287,48 @@ describe('MarkdownRenderer', () => {
     expect(fncElements[1]?.textContent).toBe('3');
   });
 
+  it('流式模式下应渲染裸脚注引用（无定义）', () => {
+    const { container } = render(
+      <MarkdownRenderer
+        content={
+          'Microsoft Corporation 是一家领先的技术公司，专注于云计算、生产力软件、业务应用程序和消费技术。公司的核心业务模式围绕三大分部展开：Productivity and Business Processes（生产力和业务流程）、Intelligent Cloud（智能云）、以及 More Personal Computing（更多个人计算）。[^1]'
+        }
+        streaming={true}
+        queueOptions={{ animate: false }}
+      />,
+    );
+
+    const fncElements = container.querySelectorAll('[data-fnc="fnc"]');
+    expect(fncElements.length).toBe(1);
+    expect(fncElements[0]?.textContent).toBe('1');
+  });
+
+  it('流式追加 [^1] 时不应丢失脚注引用节点', () => {
+    const baseContent =
+      'Microsoft Corporation 是一家领先的技术公司，专注于云计算、生产力软件、业务应用程序和消费技术。';
+    const { container, rerender } = render(
+      <MarkdownRenderer
+        content={baseContent}
+        streaming={true}
+        queueOptions={{ animate: false }}
+      />,
+    );
+
+    expect(container.textContent).toContain('Microsoft Corporation');
+
+    rerender(
+      <MarkdownRenderer
+        content={`${baseContent}[^1]`}
+        streaming={true}
+        queueOptions={{ animate: false }}
+      />,
+    );
+
+    const fncElements = container.querySelectorAll('[data-fnc="fnc"]');
+    expect(fncElements.length).toBe(1);
+    expect(fncElements[0]?.textContent).toBe('1');
+  });
+
   it('应将 <think> 标签渲染为 ToolUseBarThink 组件', () => {
     const { container } = render(
       <MarkdownRenderer
@@ -342,6 +384,21 @@ describe('MarkdownRenderer', () => {
   it('应渲染图片', () => {
     const { container } = render(
       <MarkdownRenderer content="![alt text](https://example.com/image.png)" />,
+    );
+
+    const img = container.querySelector('img');
+    expect(img).toBeTruthy();
+    expect(img?.getAttribute('src')).toBe('https://example.com/image.png');
+    expect(img?.getAttribute('alt')).toBe('alt text');
+  });
+
+  it('流式模式下应保留图片节点', () => {
+    const { container } = render(
+      <MarkdownRenderer
+        content="![alt text](https://example.com/image.png)"
+        streaming={true}
+        queueOptions={{ animate: false }}
+      />,
     );
 
     const img = container.querySelector('img');

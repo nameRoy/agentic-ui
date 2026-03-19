@@ -25,6 +25,18 @@ const extractText = (children: React.ReactNode): string => {
   return '';
 };
 
+/**
+ * 识别 children 中是否包含 React 元素节点。
+ * 富文本结构（链接、脚注、图片等）在纯文本差分下会丢失结构信息，直接透传更安全。
+ */
+const hasElementNode = (children: React.ReactNode): boolean => {
+  if (children === null || children === undefined || typeof children === 'boolean')
+    return false;
+  if (typeof children === 'string' || typeof children === 'number') return false;
+  if (Array.isArray(children)) return children.some(hasElementNode);
+  return React.isValidElement(children);
+};
+
 interface ChunkState {
   key: string;
   text: string;
@@ -47,8 +59,14 @@ const AnimationText = React.memo<AnimationTextProps>(
     const prevTextRef = useRef('');
 
     const text = extractText(children);
+    const hasElementContent = hasElementNode(children);
 
     useEffect(() => {
+      if (hasElementContent) {
+        prevTextRef.current = text;
+        return;
+      }
+
       if (text === prevTextRef.current) return;
 
       if (!prevTextRef.current || !text.startsWith(prevTextRef.current)) {
@@ -65,7 +83,7 @@ const AnimationText = React.memo<AnimationTextProps>(
         { key: newKey, text: newText, done: false },
       ]);
       prevTextRef.current = text;
-    }, [text, children]);
+    }, [text, children, hasElementContent]);
 
     const handleAnimationEnd = (key: string) => {
       setChunks((prev) =>
@@ -91,6 +109,10 @@ const AnimationText = React.memo<AnimationTextProps>(
       }),
       [],
     );
+
+    if (hasElementContent) {
+      return <>{children}</>;
+    }
 
     return (
       <>
