@@ -441,6 +441,33 @@ describe('SchemaEditor', () => {
       );
       expect(errEl).toBeInTheDocument();
     });
+
+    it('应在 validateSchema 抛出非 Error 类型异常时使用默认错误信息 (line 170)', async () => {
+      vi.mocked(mdDataSchemaValidator.validate).mockImplementationOnce(() => {
+        throw 'string error'; // 非 Error 类型异常
+      });
+
+      const ref = createRef<SchemaEditorRef>();
+      render(
+        <TestWrapper>
+          <SchemaEditor
+            ref={ref}
+            initialSchema={mockSchema}
+            initialValues={mockValues}
+            height={600}
+          />
+        </TestWrapper>,
+      );
+
+      ref.current?.setSchema(mockSchema);
+
+      const errEl = await screen.findByText(
+        /验证失败|Validation failed/,
+        {},
+        { timeout: 3000 },
+      );
+      expect(errEl).toBeInTheDocument();
+    });
   });
 
   describe('Ref 功能测试', () => {
@@ -687,6 +714,62 @@ describe('SchemaEditor', () => {
       );
 
       ref.current?.copyHtml();
+    });
+
+    it('应在 content 为空时显示警告 (line 230)', async () => {
+      const ref = createRef<SchemaEditorRef>();
+      vi.spyOn(message, 'warning');
+
+      render(
+        <TestWrapper>
+          <SchemaEditor
+            ref={ref}
+            initialSchema={{
+              ...mockSchema,
+              component: {
+                ...mockSchema.component,
+                schema: '',
+              },
+            }}
+            initialValues={mockValues}
+            height={600}
+          />
+        </TestWrapper>,
+      );
+
+      ref.current?.copyHtml();
+
+      await waitFor(() => {
+        expect(message.warning).toHaveBeenCalled();
+      });
+    });
+
+    it('应在 content 只有空白时显示警告 (line 230)', async () => {
+      const ref = createRef<SchemaEditorRef>();
+      vi.spyOn(message, 'warning');
+
+      render(
+        <TestWrapper>
+          <SchemaEditor
+            ref={ref}
+            initialSchema={{
+              ...mockSchema,
+              component: {
+                ...mockSchema.component,
+                schema: '   \n\t  ',
+              },
+            }}
+            initialValues={mockValues}
+            height={600}
+          />
+        </TestWrapper>,
+      );
+
+      ref.current?.copyHtml();
+
+      await waitFor(() => {
+        expect(message.warning).toHaveBeenCalled();
+      });
     });
 
     it('应该能够通过 ref 完整操作流程', async () => {
