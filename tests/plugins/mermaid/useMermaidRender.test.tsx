@@ -63,6 +63,30 @@ describe('useMermaidRender', () => {
       clearTimeoutSpy.mockRestore();
     });
 
+    it('应在 code 从非空变为空时清空内容并 return (30-36)', async () => {
+      const { result, rerender } = renderHook(
+        ({ code }) => useMermaidRender(code, divRef, 'test-id', true),
+        { initialProps: { code: 'graph TD' } },
+      );
+
+      await act(async () => {
+        vi.advanceTimersByTime(500);
+        await vi.runAllTimersAsync();
+      });
+
+      expect(result.current.renderedCode).toBe('graph TD');
+      expect(mockLoadMermaid).toHaveBeenCalled();
+
+      rerender({ code: '' });
+
+      await act(async () => {
+        vi.advanceTimersByTime(100);
+      });
+
+      expect(result.current.renderedCode).toBe('');
+      expect(divElement.innerHTML).toBe('');
+    });
+
     it('应该在 isVisible 为 false 时不渲染', async () => {
       renderHook(() => useMermaidRender('graph TD', divRef, 'test-id', false));
 

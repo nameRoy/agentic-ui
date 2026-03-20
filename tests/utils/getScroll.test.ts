@@ -83,6 +83,16 @@ describe('getScroll', () => {
       expect(getScroll(target as any)).toBe(88);
     });
 
+    it('returns document.documentElement.scrollTop when target is global document', () => {
+      const doc = document;
+      Object.defineProperty(doc.documentElement, 'scrollTop', {
+        value: 100,
+        writable: true,
+        configurable: true,
+      });
+      expect(getScroll(doc)).toBe(100);
+    });
+
     it('returns 0 when target is null', () => {
       expect(getScroll(null)).toBe(0);
     });
@@ -121,6 +131,7 @@ describe('getScroll', () => {
       (win as any).window = win;
       expect(getScrollRailHeight(win as any)).toBe(1200);
     });
+
 
     it('returns documentElement scrollHeight - clientHeight for Document', () => {
       const doc = document;

@@ -30,14 +30,33 @@ if (typeof URL.revokeObjectURL === 'undefined') {
   URL.revokeObjectURL = vi.fn();
 }
 
-// Mock message
+// Mock message；Mock Image 以便测试中可触发 preview.onVisibleChange 覆盖 1064
 vi.mock('antd', async () => {
   const actual = await vi.importActual('antd');
+  const React = (await import('react')).default;
   return {
     ...(actual as any),
     message: {
       success: vi.fn(),
       error: vi.fn(),
+    },
+    Image: function MockImage({ preview, src, alt, ...rest }: any) {
+      return React.createElement(
+        'div',
+        { 'data-testid': 'image-preview-wrapper' },
+        React.createElement('img', { src, alt, ...rest }),
+        preview?.visible &&
+          preview?.onVisibleChange &&
+          React.createElement(
+            'button',
+            {
+              type: 'button',
+              'data-testid': 'close-image-preview',
+              onClick: () => preview.onVisibleChange(false),
+            },
+            '关闭预览',
+          ),
+      );
     },
   };
 });
@@ -1157,6 +1176,28 @@ describe('FileComponent', () => {
       expect(screen.getAllByText('orig.txt').length).toBeGreaterThan(0);
     });
 
+    it('图片预览关闭时触发 onVisibleChange (1064)', async () => {
+      const actionRef = React.createRef<any>();
+      const nodes: FileNode[] = [
+        { id: 'f1', name: 'photo.png', url: 'https://example.com/photo.png' },
+      ];
+
+      render(
+        <TestWrapper>
+          <FileComponent nodes={nodes} actionRef={actionRef} />
+        </TestWrapper>,
+      );
+
+      actionRef.current?.openPreview(nodes[0]);
+      await waitFor(() => {
+        expect(screen.getByTestId('close-image-preview')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByTestId('close-image-preview'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('close-image-preview')).not.toBeInTheDocument();
+      });
+    });
+
     it('卸载时 actionRef.current 置为 null (1064)', () => {
       const actionRef = React.createRef<any>();
       const nodes: FileNode[] = [
@@ -1882,6 +1923,48 @@ describe('FileComponent', () => {
       );
 
       // previewFile 应该被更新，组件应该仍然在预览状态
+      expect(screen.getByLabelText('返回文件列表')).toBeInTheDocument();
+    });
+
+    it('预览时 nodes 为分组结构且子节点更新应同步到 previewFile (845-846)', async () => {
+      const initialNodes: GroupNode[] = [
+        {
+          id: 'g1',
+          name: '分组',
+          type: 'plainText',
+          children: [
+            { id: 'f1', name: 'a.txt', content: 'Initial' },
+          ],
+        },
+      ];
+      const updatedNodes: GroupNode[] = [
+        {
+          id: 'g1',
+          name: '分组',
+          type: 'plainText',
+          children: [
+            { id: 'f1', name: 'a.txt', content: 'Updated' },
+          ],
+        },
+      ];
+
+      const { rerender } = render(
+        <TestWrapper>
+          <FileComponent nodes={initialNodes} onPreview={vi.fn()} />
+        </TestWrapper>,
+      );
+
+      fireEvent.click(screen.getByText('a.txt'));
+      await waitFor(() => {
+        expect(screen.getByLabelText('返回文件列表')).toBeInTheDocument();
+      });
+
+      rerender(
+        <TestWrapper>
+          <FileComponent nodes={updatedNodes} onPreview={vi.fn()} />
+        </TestWrapper>,
+      );
+
       expect(screen.getByLabelText('返回文件列表')).toBeInTheDocument();
     });
 

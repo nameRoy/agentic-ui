@@ -30,24 +30,24 @@ vi.mock('../../../src/MarkdownEditor/I18n', () => ({
   }),
 }));
 
-vi.mock('react-use', () => ({
-  useGetSetState: vi.fn(() => {
-    const state = {
-      showBorder: false,
-      htmlStr: '',
-      hide: false,
-      lang: 'mermaid',
-    };
-    const setState = vi.fn((update) => {
-      if (typeof update === 'function') {
-        update(state);
-      } else {
-        Object.assign(state, update);
-      }
-    });
-    return [() => state, setState];
-  }),
-}));
+// 使用 useState 以便 setState 触发重渲染，覆盖 81、98-99
+vi.mock('react-use', () => {
+  const React = require('react');
+  return {
+    useGetSetState: vi.fn((initialState) => {
+      const [state, setStateInternal] = React.useState(initialState);
+      const getState = () => state;
+      const setState = (update) => {
+        if (typeof update === 'function') {
+          setStateInternal((s) => ({ ...s, ...update(s) }));
+        } else {
+          setStateInternal((s) => ({ ...s, ...update }));
+        }
+      };
+      return [getState, setState];
+    }),
+  };
+});
 
 vi.mock('copy-to-clipboard', () => ({
   default: vi.fn().mockReturnValue(true),
@@ -132,6 +132,13 @@ describe('MermaidElement Component', () => {
       const chartArea = mermaidEl?.children[1];
       if (chartArea) fireEvent.click(chartArea as Element);
       expect(document.body).toBeInTheDocument();
+    });
+
+    it('language 为 mermaid 时图表区域存在（覆盖 98-99 style 分支）', () => {
+      render(<MermaidElement {...defaultProps} />);
+      const mermaidEl = document.querySelector('[data-be="mermaid"]');
+      const chartWrapper = mermaidEl?.children[1];
+      expect(chartWrapper).toBeInTheDocument();
     });
   });
 

@@ -852,6 +852,33 @@ describe('PreviewComponent', () => {
       expect(screen.getByLabelText('分享')).toBeInTheDocument();
       expect(screen.getByLabelText('下载')).toBeInTheDocument();
     });
+
+    it('HTML 文件且传入 customActions 时同时显示 Segmented 与 customActions (702-706, 723)', async () => {
+      const file: FileNode = {
+        id: 'f1',
+        name: 'doc.html',
+        content: '<p>Hi</p>',
+      };
+      const customActions = (
+        <span data-testid="extra-actions">Extra</span>
+      );
+
+      render(
+        <TestWrapper>
+          <PreviewComponent
+            file={file}
+            onBack={vi.fn()}
+            customActions={customActions}
+          />
+        </TestWrapper>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('预览')).toBeInTheDocument();
+        expect(screen.getByText('代码')).toBeInTheDocument();
+      });
+      expect(screen.getByTestId('extra-actions')).toBeInTheDocument();
+    });
   });
 
   describe('覆盖率补充', () => {
