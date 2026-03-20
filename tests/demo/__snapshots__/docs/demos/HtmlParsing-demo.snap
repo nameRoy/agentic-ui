@@ -1993,10 +1993,10 @@ console.log('嵌套的代码');
                           style="width: 12px; min-width: 12px; max-width: 12px;"
                         />
                         <col
-                          style="width: 168px; min-width: 168px; max-width: 168px;"
+                          style="width: 118px; min-width: 118px; max-width: 118px;"
                         />
                         <col
-                          style="width: 240px; min-width: 240px; max-width: 240px;"
+                          style="width: 118px; min-width: 118px; max-width: 118px;"
                         />
                         <col
                           style="min-width: 80px;"
