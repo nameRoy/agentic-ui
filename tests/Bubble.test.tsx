@@ -810,8 +810,7 @@ describe('Bubble', () => {
         </BubbleConfigProvide>,
       );
 
-      /** 组件应该正常渲染而不崩溃 */
-      expect(document.body).toBeInTheDocument();
+      expect(screen.getByTestId('chat-message')).toBeInTheDocument();
     });
 
     it('should handle empty string content', () => {

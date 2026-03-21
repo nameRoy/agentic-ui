@@ -1124,8 +1124,6 @@ describe('ChartRender', () => {
           fireEvent.click(submitBtn);
         });
       }
-
-      expect(document.body).toBeInTheDocument();
     });
 
     it('应该处理配置中的 columns 过滤', () => {

@@ -133,11 +133,6 @@ describe('InsertLink Component', () => {
     vi.mocked(EditorUtils.focus).mockImplementation(() => {});
   });
 
-  it('应该渲染插入链接组件', () => {
-    render(<InsertLink />);
-    expect(document.body).toBeInTheDocument();
-  });
-
   it('应该在 open 为 false 时返回 null', () => {
     mockState.open = false;
     const { container } = render(<InsertLink />);

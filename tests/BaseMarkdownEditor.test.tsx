@@ -95,28 +95,15 @@ describe('BaseMarkdownEditor', () => {
       });
     });
 
-    it('应该在 initValue 为空字符串时正常渲染', async () => {
-      const { container } = render(
-        <BaseMarkdownEditor initValue="" onChange={vi.fn()} />,
-      );
-      await waitFor(() => {
-        expect(container.querySelector('.markdown-editor')).toBeInTheDocument();
-        expect(screen.getByTestId('slate-markdown-editor')).toBeInTheDocument();
-      });
-    });
-
-    it('应该在 initValue 为 undefined 时正常渲染', async () => {
-      const { container } = render(
-        <BaseMarkdownEditor initValue={undefined} onChange={vi.fn()} />,
-      );
-      await waitFor(() => {
-        expect(container.querySelector('.markdown-editor')).toBeInTheDocument();
-        expect(screen.getByTestId('slate-markdown-editor')).toBeInTheDocument();
-      });
-    });
-
-    it('应该在不传 initValue 时正常渲染', async () => {
-      const { container } = render(<BaseMarkdownEditor onChange={vi.fn()} />);
+    it.each([
+      { label: '空字符串', props: { initValue: '' as const, onChange: vi.fn() } },
+      {
+        label: 'undefined',
+        props: { initValue: undefined, onChange: vi.fn() },
+      },
+      { label: '省略 initValue', props: { onChange: vi.fn() } },
+    ])('应该在 initValue 为 $label 时正常渲染', async ({ props }) => {
+      const { container } = render(<BaseMarkdownEditor {...props} />);
       await waitFor(() => {
         expect(container.querySelector('.markdown-editor')).toBeInTheDocument();
         expect(screen.getByTestId('slate-markdown-editor')).toBeInTheDocument();

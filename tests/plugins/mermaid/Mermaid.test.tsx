@@ -12,7 +12,6 @@ vi.mock('../../../src/Plugins/mermaid/env', () => ({
   isBrowser: vi.fn(() => true),
 }));
 
-// Mock mermaid
 vi.mock('mermaid', () => ({
   default: {
     render: vi.fn().mockResolvedValue({ svg: '<svg>test</svg>' }),
@@ -20,7 +19,6 @@ vi.mock('mermaid', () => ({
   },
 }));
 
-// Mock react-use
 vi.mock('react-use', () => ({
   useGetSetState: vi.fn((initialState) => {
     let state = { ...initialState };
@@ -51,124 +49,36 @@ describe('Mermaid Component', () => {
   const renderMermaid = (overrides: Partial<typeof defaultElement> = {}) =>
     render(<Mermaid element={{ ...defaultElement, ...overrides }} />);
 
-  describe('基本渲染测试', () => {
-    it('非浏览器环境（isBrowser 为 false）时应 return null', async () => {
-      const { isBrowser } = await import('../../../src/Plugins/mermaid/env');
-      vi.mocked(isBrowser).mockReturnValueOnce(false);
+  it('非浏览器环境（isBrowser 为 false）时应 return null', async () => {
+    const { isBrowser } = await import('../../../src/Plugins/mermaid/env');
+    vi.mocked(isBrowser).mockReturnValueOnce(false);
 
-      const { container } = render(
-        <Mermaid element={{ ...defaultElement }} />,
-      );
-      expect(container.firstChild).toBeNull();
-    });
+    const { container } = render(<Mermaid element={{ ...defaultElement }} />);
+    expect(container.firstChild).toBeNull();
+  });
 
-    it('应该正确渲染 Mermaid 组件', () => {
-      renderMermaid();
-
-      expect(document.body).toBeInTheDocument();
-    });
-
-    it('应该渲染空状态', () => {
-      renderMermaid({ value: '' });
-
-      expect(document.body).toBeInTheDocument();
-    });
-
-    it('应该渲染错误状态', () => {
-      renderMermaid({ value: 'invalid mermaid code' });
-
-      expect(document.body).toBeInTheDocument();
+  it('挂载后应调用 mermaid.render（默认代码）', async () => {
+    const mermaid = await import('mermaid');
+    renderMermaid();
+    await waitFor(() => {
+      expect(mermaid.default.render).toHaveBeenCalled();
     });
   });
 
-  describe('mermaid 渲染测试', () => {
-    it('应该调用 mermaid.render 方法', async () => {
-      const mermaid = await import('mermaid');
-
-      renderMermaid();
-
-      await waitFor(() => {
-        expect(mermaid.default.render).toHaveBeenCalled();
-      });
+  it('空内容展示空态且不调用 mermaid.render', async () => {
+    const mermaid = await import('mermaid');
+    renderMermaid({ value: '' });
+    await waitFor(() => {
+      expect(
+        document.querySelector('.ant-agentic-plugin-mermaid-empty'),
+      ).toBeInTheDocument();
     });
-
-    it('应该处理 mermaid.render 成功', async () => {
-      const mermaid = await import('mermaid');
-
-      renderMermaid();
-
-      await waitFor(() => {
-        expect(mermaid.default.render).toHaveBeenCalled();
-      });
-    });
-
-    it('应该处理 mermaid.render 失败', async () => {
-      const mermaid = await import('mermaid');
-
-      renderMermaid();
-
-      await waitFor(() => {
-        expect(mermaid.default.render).toHaveBeenCalled();
-      });
-    });
-
-    it('应该处理 mermaid.parse 失败', async () => {
-      const mermaid = await import('mermaid');
-      vi.clearAllMocks();
-
-      renderMermaid();
-
-      // 等待 mermaid 渲染完成
-      await waitFor(
-        () => {
-          expect(mermaid.default.render).toHaveBeenCalled();
-        },
-        { timeout: 3000 },
-      );
-    });
+    expect(mermaid.default.render).not.toHaveBeenCalled();
   });
 
-  describe('定时器测试', () => {
-    it('应该使用 setTimeout 进行防抖', () => {
-      const setTimeoutSpy = vi.spyOn(window, 'setTimeout');
-      const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
-
-      renderMermaid();
-
-      expect(setTimeoutSpy).toHaveBeenCalled();
-    });
-
-    it('应该在组件卸载时清理定时器', () => {
-      const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
-      const { unmount } = renderMermaid();
-
-      unmount();
-
-      expect(clearTimeoutSpy).toHaveBeenCalled();
-    });
-  });
-
-  describe('边界情况测试', () => {
-    it('应该处理 undefined value', () => {
-      renderMermaid({ value: undefined as any });
-
-      expect(document.body).toBeInTheDocument();
-    });
-
-    it('应该处理 null value', () => {
-      renderMermaid({ value: null as any });
-
-      expect(document.body).toBeInTheDocument();
-    });
-
-    it('应该处理空字符串 value', () => {
-      renderMermaid({ value: '' });
-
-      expect(document.body).toBeInTheDocument();
-    });
-
-    it('应该处理复杂的 mermaid 代码', () => {
-      const complexCode = `
+  it('复杂代码与非法代码仍会走 mermaid.render', async () => {
+    const mermaid = await import('mermaid');
+    const complexCode = `
         graph TD
         A[开始] --> B{判断}
         B -->|是| C[执行]
@@ -177,72 +87,69 @@ describe('Mermaid Component', () => {
         D --> E
       `;
 
-      renderMermaid({ value: complexCode });
+    const { rerender } = renderMermaid();
+    await waitFor(() => expect(mermaid.default.render).toHaveBeenCalled());
 
-      expect(document.body).toBeInTheDocument();
+    vi.clearAllMocks();
+    rerender(
+      <Mermaid element={{ ...defaultElement, value: 'invalid mermaid code' }} />,
+    );
+    await waitFor(() => expect(mermaid.default.render).toHaveBeenCalled());
+
+    vi.clearAllMocks();
+    rerender(<Mermaid element={{ ...defaultElement, value: complexCode }} />);
+    await waitFor(() => expect(mermaid.default.render).toHaveBeenCalled());
+  });
+
+  it('null/undefined value 与空字符串同属空态', async () => {
+    const mermaid = await import('mermaid');
+    const { rerender } = render(
+      <Mermaid element={{ ...defaultElement, value: undefined as any }} />,
+    );
+    await waitFor(() => {
+      expect(
+        document.querySelector('.ant-agentic-plugin-mermaid-empty'),
+      ).toBeInTheDocument();
+    });
+    expect(mermaid.default.render).not.toHaveBeenCalled();
+
+    rerender(<Mermaid element={{ ...defaultElement, value: null as any }} />);
+    await waitFor(() => {
+      expect(
+        document.querySelector('.ant-agentic-plugin-mermaid-empty'),
+      ).toBeInTheDocument();
     });
   });
 
-  describe('样式和布局测试', () => {
-    it('应该应用正确的样式', () => {
-      renderMermaid();
-
-      const container = document.querySelector('div');
-      expect(container).toBeInTheDocument();
-    });
-
-    it('应该设置 contentEditable 为 false', () => {
-      renderMermaid();
-
-      const container = document.querySelector('div');
-      expect(container).toBeInTheDocument();
-    });
+  it('应使用 setTimeout 进行防抖', () => {
+    const setTimeoutSpy = vi.spyOn(window, 'setTimeout');
+    renderMermaid();
+    expect(setTimeoutSpy).toHaveBeenCalled();
+    setTimeoutSpy.mockRestore();
   });
 
-  describe('错误处理测试', () => {
-    it('应该显示错误信息', async () => {
-      const mermaid = await import('mermaid');
-
-      renderMermaid();
-
-      await waitFor(() => {
-        expect(document.body).toBeInTheDocument();
-      });
-    });
-
-    it('应该处理空代码和错误状态', () => {
-      renderMermaid({ value: '' });
-
-      expect(document.body).toBeInTheDocument();
-    });
+  it('应在组件卸载时清理定时器', () => {
+    const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
+    const { unmount } = renderMermaid();
+    unmount();
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+    clearTimeoutSpy.mockRestore();
   });
 
-  describe('性能测试', () => {
-    it('应该处理快速更新的代码', async () => {
-      const { rerender } = renderMermaid();
+  it('快速更新 element.value 后仍应调用 render', async () => {
+    const mermaid = await import('mermaid');
+    const { rerender } = renderMermaid();
+    await waitFor(() => expect(mermaid.default.render).toHaveBeenCalled());
 
-      // 快速更新代码
-      rerender(
-        <Mermaid
-          element={{
-            ...defaultElement,
-            value: 'graph TD\nB[新代码] --> C[结束]',
-          }}
-        />,
-      );
-
-      await waitFor(() => {
-        expect(document.body).toBeInTheDocument();
-      });
-    });
-
-    it('应该处理相同的代码不会重复渲染', () => {
-      const { rerender } = renderMermaid();
-
-      // 使用相同的代码重新渲染
-      rerender(<Mermaid element={defaultElement} />);
-
-      expect(document.body).toBeInTheDocument();
-    });
+    vi.clearAllMocks();
+    rerender(
+      <Mermaid
+        element={{
+          ...defaultElement,
+          value: 'graph TD\nB[新代码] --> C[结束]',
+        }}
+      />,
+    );
+    await waitFor(() => expect(mermaid.default.render).toHaveBeenCalled());
   });
 });
