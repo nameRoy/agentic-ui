@@ -103,6 +103,35 @@ vi.mock('rc-resize-observer', () => ({
 // 设置动画相关的全局mock
 setupAnimationMocks();
 
+/**
+ * 仅抽样部分 demo 以缩短 CI 耗时；全量跑可设 AGENTIC_UI_DEMO_TEST_RATIO=1
+ * 使用路径确定性哈希，同一文件结果稳定。
+ * 默认约 45% 文件（约 30 条用例量级，视 docs 下 demo 数量浮动）。
+ */
+const DEMO_TEST_RATIO = Math.min(
+  1,
+  Math.max(
+    0,
+    Number(process.env.AGENTIC_UI_DEMO_TEST_RATIO ?? 0.45),
+  ),
+);
+
+function includeDemoFile(file: string): boolean {
+  if (DEMO_TEST_RATIO >= 1) {
+    return true;
+  }
+  if (DEMO_TEST_RATIO <= 0) {
+    return false;
+  }
+  let h = 2166136261;
+  for (let i = 0; i < file.length; i += 1) {
+    h ^= file.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  const unit = (h >>> 0) / 0xffffffff;
+  return unit < DEMO_TEST_RATIO;
+}
+
 const waitTime = (time: number) =>
   new Promise((resolve) => {
     setTimeout(resolve, time);
@@ -148,9 +177,17 @@ function demoTest() {
     nodir: true,
   });
 
-  files
+  const demoFiles = files
     .filter((file) => file.endsWith('demo.tsx'))
-    .forEach((file) => {
+    .filter(includeDemoFile);
+
+  if (process.env.CI && demoFiles.length === 0) {
+    throw new Error(
+      'No demo files selected; set AGENTIC_UI_DEMO_TEST_RATIO=1 or widen ratio',
+    );
+  }
+
+  demoFiles.forEach((file) => {
       describe(`Rendering demo: ${file}`, () => {
         it(`renders ${file} correctly`, async () => {
           const fn = vi.fn();

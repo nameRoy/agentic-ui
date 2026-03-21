@@ -433,6 +433,12 @@ pnpm run test:e2e
 pnpm run test:e2e:debug
 ```
 
+`tests/demo/demo.test.tsx` 默认只抽样部分文档 demo 以缩短耗时；本地需跑全量 demo 渲染时可执行：
+
+```bash
+AGENTIC_UI_DEMO_TEST_RATIO=1 pnpm exec vitest run tests/demo/demo.test.tsx
+```
+
 #### 测试最佳实践
 
 - ✅ 测试用户行为而非实现细节
