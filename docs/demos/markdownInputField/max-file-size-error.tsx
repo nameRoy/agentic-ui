@@ -35,7 +35,6 @@ const MaxFileSizeErrorDemo: React.FC = () => {
               onChange={setValue}
               attachment={{
                 enable: true,
-                accept: '.pdf,.doc,.docx,image/*',
                 maxFileSize: MAX_FILE_SIZE_BYTES,
                 maxFileCount: MAX_FILE_COUNT,
                 upload: async (file) => {

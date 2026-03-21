@@ -1,5 +1,5 @@
 import { CircleDashed, Copy, Play } from '@sofa-design/icons';
-import { Button, ConfigProvider } from 'antd';
+import { Button, ConfigProvider, message } from 'antd';
 import classNames from 'clsx';
 import copy from 'copy-to-clipboard';
 import React, {
@@ -225,14 +225,23 @@ const SchemaEditorComponent = forwardRef<SchemaEditorRef, SchemaEditorProps>(
 
     // 复制函数
     const handleCopyContent = useCallback(
-      (content: string) => {
+      (content: string, type: 'html' | 'json') => {
         if (!content || !content.trim()) {
+          message.warning(locale['schemaEditor.noContentToCopy']);
           return;
         }
 
         try {
-          copy(content);
+          const ok = copy(content);
+          if (ok) {
+            message.success(
+              `${type === 'html' ? 'HTML' : 'JSON'}${locale['schemaEditor.copySuccess']}`,
+            );
+          } else {
+            message.error(locale['schemaEditor.copyFailed']);
+          }
         } catch (error) {
+          message.error(locale['schemaEditor.copyFailed']);
           console.error(locale['schemaEditor.copyFailed'], error);
         }
       },
@@ -241,12 +250,12 @@ const SchemaEditorComponent = forwardRef<SchemaEditorRef, SchemaEditorProps>(
 
     // 处理复制HTML内容
     const handleCopyHtml = useCallback(() => {
-      handleCopyContent(htmlContent);
+      handleCopyContent(htmlContent, 'html');
     }, [htmlContent, handleCopyContent]);
 
     // 处理复制JSON内容
     const handleCopyJson = useCallback(() => {
-      handleCopyContent(schemaString);
+      handleCopyContent(schemaString, 'json');
     }, [schemaString, handleCopyContent]);
 
     // 统一的设置内容方法，支持 HTML 或 JSON 字符串
