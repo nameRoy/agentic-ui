@@ -10,6 +10,7 @@ import {
   isNotEmpty,
   isXValueEqual,
   normalizeXValue,
+  parseChineseCurrencyToNumber,
   resolveCssVariable,
   stringFormatNumber,
   toNumber,
@@ -57,9 +58,8 @@ describe('Chart Utils', () => {
         },
       });
       vi.resetModules();
-      const { stringFormatNumber: stringFormatNumberReloaded } = await import(
-        '../../../src/Plugins/chart/utils'
-      );
+      const { stringFormatNumber: stringFormatNumberReloaded } =
+        await import('../../../src/Plugins/chart/utils');
       const result = stringFormatNumberReloaded(42);
       expect(result).toBe(42);
       vi.unstubAllGlobals();
@@ -301,6 +301,37 @@ describe('Chart Utils', () => {
       expect(normalizeXValue('Q1')).toBe('Q1');
       expect(normalizeXValue('2024-01')).toBe('2024-01');
     });
+
+    it('应该解析亿元、万元、元口语为数字', () => {
+      expect(normalizeXValue('533亿元')).toBe(533e8);
+      expect(normalizeXValue('549万元')).toBe(549e4);
+      expect(normalizeXValue('128.5元')).toBe(128.5);
+    });
+  });
+
+  describe('parseChineseCurrencyToNumber', () => {
+    it('应该解析亿元、万元、元', () => {
+      expect(parseChineseCurrencyToNumber('533亿元')).toBe(533e8);
+      expect(parseChineseCurrencyToNumber('约533亿元')).toBe(533e8);
+      expect(parseChineseCurrencyToNumber('549万元')).toBe(549e4);
+      expect(parseChineseCurrencyToNumber('1,234.5万元')).toBe(1234.5e4);
+      expect(parseChineseCurrencyToNumber('128.5元')).toBe(128.5);
+      expect(parseChineseCurrencyToNumber('￥100元')).toBe(100);
+    });
+
+    it('应该解析 IPO 募资表等「小数 + 空格 + 亿元」写法', () => {
+      const rAndD = parseChineseCurrencyToNumber('35.78 亿元');
+      const manufacturing = parseChineseCurrencyToNumber('6.24 亿元');
+      expect(rAndD).toBe(35.78e8);
+      expect(manufacturing).toBe(6.24e8);
+      expect((rAndD ?? 0) + (manufacturing ?? 0)).toBeCloseTo(42.02e8);
+    });
+
+    it('无法识别时应返回 null', () => {
+      expect(parseChineseCurrencyToNumber('8%')).toBe(null);
+      expect(parseChineseCurrencyToNumber('abc')).toBe(null);
+      expect(parseChineseCurrencyToNumber('')).toBe(null);
+    });
   });
 
   describe('compareXValues', () => {
@@ -422,6 +453,12 @@ describe('Chart Utils', () => {
       expect(toNumber('123', 0)).toBe(123);
       expect(toNumber('0', 999)).toBe(0);
       expect(toNumber('-456', 0)).toBe(-456);
+    });
+
+    it('应该解析人民币口语字符串', () => {
+      expect(toNumber('1083亿元', 0)).toBe(1083e8);
+      expect(toNumber('37万元', 0)).toBe(37e4);
+      expect(toNumber('293.5元', 0)).toBe(293.5);
     });
 
     it('应该返回 fallback 值当无法转换时', () => {
