@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import clsx from 'clsx';
 
 import { useLocale } from '../../../I18n';
 import { DonutChartData } from './types';
@@ -62,7 +63,7 @@ const Legend: React.FC<LegendProps> = ({
 
   return (
     <div
-      className={[`${baseClassName}-legend`, hashId].filter(Boolean).join(' ')}
+      className={clsx(`${baseClassName}-legend`, hashId)}
       style={{
         marginLeft: isMobile ? 0 : 12,
         ...(isMobile
@@ -89,9 +90,7 @@ const Legend: React.FC<LegendProps> = ({
           return (
             <div
               key={dataIndex}
-              className={[`${baseClassName}-legend-item`, hashId]
-                .filter(Boolean)
-                .join(' ')}
+              className={clsx(`${baseClassName}-legend-item`, hashId)}
               style={{
                 cursor: 'pointer',
                 padding: isMobile ? '4px 0' : '6px 0',
@@ -111,9 +110,7 @@ const Legend: React.FC<LegendProps> = ({
               aria-label={`${isHidden ? locale['chart.legend.show'] : locale['chart.legend.hide']} ${d.label}`}
             >
               <span
-                className={[`${baseClassName}-legend-color`, hashId]
-                  .filter(Boolean)
-                  .join(' ')}
+                className={clsx(`${baseClassName}-legend-color`, hashId)}
                 style={{
                   ['--donut-legend-color' as any]:
                     backgroundColors[dataIndex] || '#ccc',
@@ -124,9 +121,7 @@ const Legend: React.FC<LegendProps> = ({
                 }}
               />
               <span
-                className={[`${baseClassName}-legend-label`, hashId]
-                  .filter(Boolean)
-                  .join(' ')}
+                className={clsx(`${baseClassName}-legend-label`, hashId)}
                 style={{
                   fontSize: isMobile ? 11 : 13,
                   flex: isMobile ? '0 1 auto' : 1,
@@ -136,9 +131,7 @@ const Legend: React.FC<LegendProps> = ({
                 {d.label}
               </span>
               <span
-                className={[`${baseClassName}-legend-value`, hashId]
-                  .filter(Boolean)
-                  .join(' ')}
+                className={clsx(`${baseClassName}-legend-value`, hashId)}
                 style={{
                   fontSize: isMobile ? 11 : 13,
                   fontWeight: isMobile ? 400 : 500,
@@ -150,9 +143,7 @@ const Legend: React.FC<LegendProps> = ({
               >
                 <span>{d.value}</span>
                 <span
-                  className={[`${baseClassName}-legend-percent`, hashId]
-                    .filter(Boolean)
-                    .join(' ')}
+                  className={clsx(`${baseClassName}-legend-percent`, hashId)}
                   style={{
                     fontSize: isMobile ? 10 : 12,
                     marginLeft: isMobile ? 6 : 8,
@@ -175,9 +166,7 @@ const Legend: React.FC<LegendProps> = ({
       </div>
       {totalPages > 1 && (
         <div
-          className={[`${baseClassName}-legend-pagination`, hashId]
-            .filter(Boolean)
-            .join(' ')}
+          className={clsx(`${baseClassName}-legend-pagination`, hashId)}
           style={isMobile ? { flexShrink: 0 } : undefined}
         >
           <button

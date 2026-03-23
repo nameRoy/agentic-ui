@@ -1,8 +1,9 @@
-import { DownOutlined, SettingOutlined } from '@ant-design/icons';
+import { CopyOutlined, DownOutlined, SettingOutlined } from '@ant-design/icons';
 import { ProForm, ProFormSelect } from '@ant-design/pro-components';
-import { ConfigProvider, Descriptions, Dropdown, Popover, Table } from 'antd';
+import { ConfigProvider, Descriptions, Dropdown, message, Popover, Table } from 'antd';
 import { DescriptionsItemType } from 'antd/es/descriptions';
 import React, { lazy, Suspense, useContext, useMemo, useState } from 'react';
+import copy from 'copy-to-clipboard';
 import { ActionIconBox } from '../../Components/ActionIconBox';
 import { Loading } from '../../Components/Loading';
 import { I18nContext } from '../../I18n';
@@ -771,6 +772,54 @@ export const ChartRender: React.FC<{
     'ant-agentic-chart-config-form';
 
   /**
+   * 将表格数据转换为 Markdown 格式
+   */
+  const generateMarkdownTable = () => {
+    const columns = config?.columns || [];
+    const data = chartData || [];
+
+    if (columns.length === 0 || data.length === 0) {
+      return '';
+    }
+
+    // 表头
+    const headerRow = columns
+      .filter((col: any) => col?.title)
+      .map((col: any) => col.title)
+      .join(' | ');
+
+    // 分隔行
+    const separatorRow = columns
+      .filter((col: any) => col?.title)
+      .map(() => '---')
+      .join(' | ');
+
+    // 数据行
+    const dataRows = data.map((row: any) => {
+      return columns
+        .filter((col: any) => col?.title)
+        .map((col: any) => {
+          const value = row[col.dataIndex];
+          return value !== undefined && value !== null ? String(value) : '';
+        })
+        .join(' | ');
+    });
+
+    return [headerRow, separatorRow, ...dataRows].join('\n');
+  };
+
+  /**
+   * 复制表格 Markdown
+   */
+  const handleCopyMarkdown = () => {
+    const markdown = generateMarkdownTable();
+    if (markdown) {
+      copy(markdown);
+      message.success(i18n?.locale?.copySuccess || '复制成功');
+    }
+  };
+
+  /**
    * 图表配置
    */
   const toolBar = useMemo(() => {
@@ -938,6 +987,15 @@ export const ChartRender: React.FC<{
           <SettingOutlined style={{ color: 'rgba(0, 25, 61, 0.3255)' }} />
         </ActionIconBox>
       </Popover>,
+      <ActionIconBox
+        key="copy-markdown"
+        title={i18n?.locale?.copyMarkdown || '复制表格'}
+      >
+        <CopyOutlined
+          style={{ color: 'rgba(0, 25, 61, 0.3255)' }}
+          onClick={handleCopyMarkdown}
+        />
+      </ActionIconBox>,
     ].filter((item) => !!item) as JSX.Element[];
   }, [
     chartType,
@@ -949,6 +1007,7 @@ export const ChartRender: React.FC<{
     config,
     props.config,
     chartConfigFormPrefixCls,
+    chartData,
   ]);
 
   const chartDom = useMemo(() => {
