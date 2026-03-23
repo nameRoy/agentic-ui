@@ -65,6 +65,7 @@
     "@juggle/resize-observer": "^3.4.0",
     "@react-three/fiber": "^8.18.0",
     "@schema-element-editor/host-sdk": "^2.2.1",
+    "@sgratzl/chartjs-chart-boxplot": "^4.4.5",
     "@sofa-design/icons": "^1.6.2",
     "@types/three": "^0.182.0",
     "ace-builds": "^1.43.6",
