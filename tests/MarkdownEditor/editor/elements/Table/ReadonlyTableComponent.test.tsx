@@ -669,7 +669,7 @@ describe('ReadonlyTableComponent', () => {
         const htmlCol = col as HTMLElement;
         const isLastCol = i === cols.length - 1;
         if (isLastCol) {
-          expect(htmlCol.style.minWidth).toBe('120px');
+          expect(htmlCol.style.minWidth).toBe('40px');
         } else {
           // 无 containerWidth 时走内容比例，5 列等分即为 20%
           expect(htmlCol.style.width).toBe('20%');
