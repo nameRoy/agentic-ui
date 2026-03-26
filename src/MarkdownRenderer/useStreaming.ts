@@ -49,7 +49,7 @@ const STREAM_INCOMPLETE_REGEX = {
     /^[-+*]\s{0,3}$/,
     /^[-+*]\s{1,3}(\*{1,3}|_{1,3})(?!\s)(?!.*\1$)[^\r\n]{0,1000}$/,
   ],
-  'inline-code': [/^`[^`\r\n]{0,300}$/],
+  'inline-code': [/^`[^`\r\n]{0,300}$/, /^`{2,}$/],
 } as const;
 
 const STREAMING_LOADING_PLACEHOLDER = '...';
@@ -247,9 +247,18 @@ export const useStreaming = (input: string, enabled: boolean): string => {
     if (!chunk) return;
 
     cache.processedLength += chunk.length;
+    let wasInCodeBlock = isInCodeBlock(cache.completeMarkdown + cache.pending);
     for (const char of chunk) {
       cache.pending += char;
-      if (isInCodeBlock(cache.completeMarkdown + cache.pending)) {
+      const inCodeBlock = isInCodeBlock(
+        cache.completeMarkdown + cache.pending,
+      );
+      if (inCodeBlock) {
+        wasInCodeBlock = true;
+        continue;
+      }
+      if (wasInCodeBlock) {
+        wasInCodeBlock = false;
         commitCache(cache);
         continue;
       }
