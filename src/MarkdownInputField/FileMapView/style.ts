@@ -30,7 +30,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         flexWrap: 'wrap',
         alignItems: 'flex-start',
         gap: 4,
-        padding: 0,
+        padding: 2,
         maxWidth: 'calc(285px * 3 + 4px * 2)', // 3列：每列285px，间距4px
         '& > :only-child': {
           marginTop: 8,
