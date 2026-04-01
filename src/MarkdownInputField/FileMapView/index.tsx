@@ -3,7 +3,6 @@ import { ConfigProvider, Image, Modal } from 'antd';
 import classNames from 'clsx';
 import { motion } from 'framer-motion';
 import React, { useContext, useMemo, useState } from 'react';
-import { I18nContext } from '../../I18n';
 import { FileMetaPlaceholder } from '../AttachmentButton/AttachmentFileList/AttachmentFileIcon';
 import { AttachmentFile } from '../AttachmentButton/types';
 import {
@@ -104,7 +103,6 @@ export type FileMapViewProps = {
 export const FileMapView: React.FC<FileMapViewProps> = (props) => {
   const { placement = 'left' } = props;
   const context = useContext(ConfigProvider.ConfigContext);
-  const { locale } = useContext(I18nContext);
   const prefix = context?.getPrefixCls('agentic-md-editor-file-view-list');
   const { wrapSSR, hashId } = useStyle(prefix);
   const [showAllFiles, setShowAllFiles] = useState(false);
