@@ -190,14 +190,6 @@ export const FileMapView: React.FC<FileMapViewProps> = (props) => {
         width: 'max-content',
       }}
     >
-      {hasAnyFiles ? (
-        <div
-          className={classNames(`${prefix}-title`, hashId)}
-          data-testid="file-view-title"
-        >
-          {locale?.['chat.fileMapTitle'] || '结果文件'}
-        </div>
-      ) : null}
       {imgList.length > 0 && (
         <motion.div
           variants={{

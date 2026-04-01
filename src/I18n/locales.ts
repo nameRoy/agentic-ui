@@ -334,7 +334,6 @@ export const cnLabels = {
   // MarkdownInputField related
   'input.fileUpload': '文件上传',
   'input.attachmentListTitle': '上传附件',
-  'chat.fileMapTitle': '结果文件',
   'input.voiceInput': '语音输入',
   'input.voiceInputting': '语音输入中，点击可停止。',
   'input.placeholder': '请输入',
