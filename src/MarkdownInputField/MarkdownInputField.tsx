@@ -1,9 +1,9 @@
 import { ConfigProvider } from 'antd';
 import classNames from 'clsx';
 import React, { memo, useContext, useState } from 'react';
-import { BaseMarkdownEditor } from '../MarkdownEditor';
 import { TextLoading } from '../Components/lotties/TextLoading';
 import { useLocale } from '../I18n';
+import { BaseMarkdownEditor } from '../MarkdownEditor';
 import { BorderBeamAnimation } from './BorderBeamAnimation';
 import { useFileUploadManager } from './FileUploadManager';
 import { useMarkdownInputFieldActions } from './hooks/useMarkdownInputFieldActions';
@@ -43,7 +43,7 @@ export type { MarkdownInputFieldProps };
  * @param {string} [props.placeholder] - 占位符文本
  * @param {string} [props.triggerSendKey='Enter'] - 触发发送的快捷键（Enter 发送，Shift+Enter 换行）
  * @param {boolean} [props.disabled] - 是否禁用
- * @param {boolean} [props.typing] - 是否正在输入
+ * @param {boolean} [props.typing] - AI 回复中等场景下为 true，输入区只读并显示提示
  * @param {AttachmentProps} [props.attachment] - 附件配置
  * @param {string[]} [props.bgColorList] - 背景颜色列表，推荐使用3-4种颜色
  * @param {React.RefObject} [props.inputRef] - 输入框引用
@@ -239,6 +239,8 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
     isLoading,
   });
 
+  const editorReadonly = isLoading || !!props.typing;
+
   const sendActionsNode = useSendActionsNode({
     props: {
       attachment,
@@ -307,7 +309,7 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
           className={classNames(baseCls, hashId, props.className, {
             [`${baseCls}-disabled`]: props.disabled,
             [`${baseCls}-skill-mode`]: props.skillMode?.open,
-            [`${baseCls}-typing`]: false,
+            [`${baseCls}-typing`]: !!props.typing,
             [`${baseCls}-loading`]: isLoading,
             [`${baseCls}-is-multi-row`]: isMultiRowLayout,
             [`${baseCls}-enlarged`]: isEnlarged,
@@ -398,7 +400,7 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
                 floatBar={{
                   enable: false,
                 }}
-                readonly={isLoading}
+                readonly={editorReadonly}
                 contentStyle={{
                   alignItems: 'flex-start',
                   padding: 'var(--padding-3x)',
@@ -466,7 +468,7 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
                     onFileMapChange={setFileMap}
                     isHover={isHover}
                     isLoading={isLoading}
-                    disabled={props.disabled}
+                    disabled={props.disabled || !!props.typing}
                     fileUploadStatus={fileUploadStatus}
                     refinePrompt={props.refinePrompt}
                     editorRef={markdownEditorRef}

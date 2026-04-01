@@ -484,9 +484,10 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         marginBottom: 8,
       },
 
-      [`${token.antCls}-input-outlined:hover, ${token.antCls}-input-outlined:focus-within`]: {
-        borderColor: 'var(--color-primary-control-fill-primary-active)',
-      },
+      [`${token.antCls}-input-outlined:hover, ${token.antCls}-input-outlined:focus-within`]:
+        {
+          borderColor: 'var(--color-primary-control-fill-primary-active)',
+        },
 
       [`${token.antCls}-input-affix-wrapper >input${token.antCls}-input`]: {
         color: 'var(--color-gray-text-default)',

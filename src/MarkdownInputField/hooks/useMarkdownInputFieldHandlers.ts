@@ -211,6 +211,7 @@ export const useMarkdownInputFieldHandlers = ({
   const handleContainerClick = useRefFunction(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (props.disabled) return;
+      if (props.typing) return;
 
       const editor = markdownEditorRef?.current?.markdownEditorRef?.current;
       if (!editor) return;

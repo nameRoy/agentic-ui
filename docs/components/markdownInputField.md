@@ -261,7 +261,7 @@ export default () => {
 | `style`                  | `React.CSSProperties`                                                | -         | 应用于输入字段的内联样式                    |
 | `className`              | `string`                                                             | -         | 应用于输入字段的 CSS 类名                   |
 | `disabled`               | `boolean`                                                            | -         | 是否禁用输入字段                            |
-| `typing`                 | `boolean`                                                            | -         | 用户是否正在输入的状态标志                  |
+| `typing`                 | `boolean`                                                            | -         | AI 回复中等场景下为 true，输入区只读并显示提示 |
 | `allowEmptySubmit`       | `boolean`                                                            | `false`   | 是否允许在内容为空时也触发发送              |
 | `triggerSendKey`         | `'Enter' \| 'Mod+Enter'`                                             | `'Enter'` | 触发发送操作的键盘快捷键                    |
 | `onSend`                 | `(value: string) => Promise<void>`                                   | -         | 当内容发送时触发的异步回调函数              |
@@ -429,6 +429,12 @@ const App = () => {
 };
 export default App;
 ```
+
+### AI 回复中的输入指引 {#ai-replying-typing-hint}
+
+当 `typing` 为 `true`（例如 AI 正在流式输出）或发送中的 `onSend` 尚未 resolve，且当前输入为空时，输入区左侧会显示带动画的提示文案（国际化键 `input.typing.hint`），比仅依赖发送按钮 loading 更明显。`typing` 为 `true` 时输入区为只读，无法编辑或语音输入，附件按钮亦不可用。
+
+<code src="../demos/markdownInputField/typing-hint.tsx" background="var(--main-bg-color)" iframe=800></code>
 
 ### 小屏幕
 

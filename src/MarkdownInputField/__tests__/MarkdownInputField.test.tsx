@@ -409,6 +409,20 @@ describe('MarkdownInputField - click to focus', () => {
     expect(container).toHaveClass('ant-agentic-md-input-field-disabled');
   });
 
+  it('should set editor readonly and typing class when typing', () => {
+    render(<MarkdownInputField typing value="" />);
+    const container = screen.getByTestId('markdown-input-field');
+    expect(container).toHaveClass('ant-agentic-md-input-field-typing');
+    const editorContent = screen.getByTestId(
+      'markdown-input-field-editor-content',
+    );
+    expect(
+      editorContent.querySelector(
+        '[class*="markdown-editor"][class*="readonly"]',
+      ),
+    ).toBeTruthy();
+  });
+
   it('should allow clicking on the editor area', () => {
     render(<MarkdownInputField />);
     const editorContent = screen.getByTestId(

@@ -156,7 +156,8 @@ const genStyle: GenerateStyle<
         height: '100%',
         overflowY: 'visible',
         cursor: 'text',
-        scrollbarColor: 'var(--color-gray-text-tertiary, #505c716b) transparent',
+        scrollbarColor:
+          'var(--color-gray-text-tertiary, #505c716b) transparent',
         scrollbarWidth: 'thin',
         '&&-disabled': {
           backgroundColor: 'rgba(0,0,0,0.04)',
@@ -196,6 +197,9 @@ const genStyle: GenerateStyle<
         padding: 0,
       },
       '&-loading': {
+        cursor: 'not-allowed',
+      },
+      '&-typing': {
         cursor: 'not-allowed',
       },
       '&-typing-hint': {
