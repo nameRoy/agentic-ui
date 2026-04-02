@@ -149,10 +149,7 @@ export const BrowserItemComponent: React.FC<BrowserItemProps> = ({
             </a>
           </Tooltip>
         </div>
-        <div
-          className={classNames(`${prefixCls}-result-item-site`, hashId)}
-          onClick={handleOpen}
-        >
+        <div className={classNames(`${prefixCls}-result-item-site`, hashId)}>
           {renderSiteAvatar(item.site, item.icon)}
           <Tooltip title={item.site} mouseEnterDelay={1}>
             <div
@@ -189,7 +186,8 @@ export const BrowserHeader: React.FC<BrowserHeaderProps> = ({
           icon={
             <ArrowLeft
               style={{
-                color: 'var(--color-gray-text-quaternary, var(--color-gray-text-light, #767e8b))',
+                color:
+                  'var(--color-gray-text-quaternary, var(--color-gray-text-light, #767e8b))',
               }}
             />
           }
@@ -430,7 +428,9 @@ const Browser: React.FC<BrowserProps> = ({
         <BrowserList
           items={results}
           activeLabel={activeLabel}
-          onBack={isSingleSuggestion ? undefined : () => setCurrentView('suggestions')}
+          onBack={
+            isSingleSuggestion ? undefined : () => setCurrentView('suggestions')
+          }
           countFormatter={countFormatter}
           emptyText={emptyText}
           loading={loading}
