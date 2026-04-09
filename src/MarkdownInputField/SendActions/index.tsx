@@ -184,7 +184,6 @@ export const SendActions: React.FC<SendActionsProps> = ({
         isSendable={
           allowEmptySubmit ||
           !!value?.trim() ||
-          (fileMap && fileMap.size > 0) ||
           recording
         }
         disabled={disabled}
